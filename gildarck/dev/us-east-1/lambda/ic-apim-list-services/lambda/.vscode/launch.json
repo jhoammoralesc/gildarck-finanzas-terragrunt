@@ -1,0 +1,32 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "SAM API Debug",
+      "type": "node",
+      "request": "attach",
+      "address": "localhost",
+      "port": 5890,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/var/task",
+      "protocol": "inspector",
+      "skipFiles": [
+        "<node_internals>/**",
+        "/var/runtime/**",
+        "/var/runtime/index.mjs",
+        "/var/task/node_modules/**"
+      ],
+      "sourceMaps": true,
+      "restart": true,
+      "timeout": 30000,
+      "outFiles": ["${workspaceFolder}/**/*.js"],
+      "trace": true,
+      "sourceMapPathOverrides": {
+        "/var/task/*": "${workspaceFolder}/*"
+      }
+    }
+  ]
+}

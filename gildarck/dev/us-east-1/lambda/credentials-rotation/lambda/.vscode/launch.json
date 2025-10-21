@@ -1,0 +1,30 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "name": "rotate-credentials-function",
+      "invokeTarget": {
+        "target": "template",
+        "templatePath": "${workspaceFolder}/template.yaml",
+        "logicalId": "RotateCredentialsFunction"
+      },
+      "lambda": {
+        "payload": {},
+        "runtime": "python3.9",
+        "environmentVariables": {
+          "ENV": "prod",
+          "ROLE_TO_ASSUME": "arn:aws:iam::559756754086:role/eks-rotate-credentials-role"
+        }
+      },
+      "sam": {
+        "containerBuild": true
+      },
+      "aws": {
+        "credentials": "profile:ic-dev",
+        "region": "us-east-1"
+      }
+    }
+  ]
+}

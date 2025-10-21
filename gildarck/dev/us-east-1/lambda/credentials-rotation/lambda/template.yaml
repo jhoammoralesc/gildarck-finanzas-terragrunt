@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Description: Lambda function for login APIM
+
+Resources:
+  K8sLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: kubernetes-layer
+      Description: Layer to use k8s API.
+      ContentUri: layers/kubernetes
+      CompatibleRuntimes:
+        - python3.9
+    Metadata:
+      BuildMethod: null
+  # RotateCredentialsFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: ./
+  #     Handler: handler.lambda_handler
+  #     Runtime: python3.9
+  #     MemorySize: 1024
+  #     Timeout:
+  #     Layers:
+  #       - !Ref K8sLayer

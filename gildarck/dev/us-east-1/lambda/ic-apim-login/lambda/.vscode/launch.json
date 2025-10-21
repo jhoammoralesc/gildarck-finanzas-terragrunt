@@ -1,0 +1,59 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "name": "Invoke IcApimLoginFunction",
+      "invokeTarget": {
+        "target": "template",
+        "templatePath": "${workspaceFolder}/template.yaml",
+        "logicalId": "IcApimLoginFunction"
+      },
+      "lambda": {
+        "runtime": "nodejs22.x",
+        "payload": {
+          "json": {
+            "headers": {
+              "Authorization": "Basic YWxlamFuZHJvLmNhc3RhbmVkYTpBbGVqbzk0MjQuKmZk",
+              "Scope": "ai.ret ai.fact"
+            },
+            "httpMethod": "POST",
+            "path": "/auth/login"
+          }
+        },
+        "environmentVariables": {
+          "AWS_REGION": "us-east-1",
+          "USER_POOL_ID": "us-east-1_SqRB9UaHj",
+          "CLIENT_ID": "454qelaoerh3efnhi356a3n04f"
+        }
+      }
+    },
+    {
+      "name": "SAM API Debug",
+      "type": "node",
+      "request": "attach",
+      "address": "localhost",
+      "port": 5890,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/var/task",
+      "skipFiles": [
+        "<node_internals>/**",
+        "/var/runtime/**",
+        "/var/runtime/index.mjs",
+        "/var/task/node_modules/**"
+      ],
+      "sourceMaps": true,
+      "restart": true,
+      "timeout": 30000,
+      "outFiles": ["${workspaceFolder}/**/*.js"],
+      "trace": true,
+      "sourceMapPathOverrides": {
+        "/var/task/*": "${workspaceFolder}/*"
+      }
+    }
+  ]
+}

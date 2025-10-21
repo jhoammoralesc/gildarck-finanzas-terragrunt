@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Description: Lambda function for login APIM
+
+Resources:
+  gildarckApimgildarckAuthorizerLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: index.handler
+      Runtime: nodejs18.x
+      MemorySize: 1024
+      Timeout: 10
+      Environment:
+        Variables:
+          USER_POOL_ID: us-east-1_SqRB9UaHj
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:InitiateAuth
+                - cognito-idp:AdminGetUser
+              Resource: "*"
