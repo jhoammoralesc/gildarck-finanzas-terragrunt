@@ -23,51 +23,32 @@ include "root" {
 # Include the envcommon configuration for the component. The envcommon configuration contains settings that are common
 # for the component across all environments.
 include "envcommon" {
-  path   = "${dirname(find_in_parent_folders())}/_envcommon/aws/lambda/function.hcl"
+  path   = "${dirname(find_in_parent_folders())}/_envcommon/aws/route53/zones.hcl"
   expose = true
 }
 
 locals {
-  vars           = read_terragrunt_config(find_in_parent_folders("env.hcl")).locals
-  name           = "gildarck-authorizer"
-  aws_account_id = read_terragrunt_config(find_in_parent_folders("account.hcl")).locals.aws_account_id
-  service_vars   = read_terragrunt_config(find_in_parent_folders("service.hcl"))
-  tags           = merge(local.service_vars.locals.tags, { name = local.name })
+  vars         = read_terragrunt_config(find_in_parent_folders("env.hcl")).locals
+  service_vars = read_terragrunt_config(find_in_parent_folders("service.hcl"))
+  tags         = merge(local.service_vars.locals.tags, { name = "gildarck.com" })
 }
 
+# ---------------------------------------------------------------------------------------------------------------------
+# Configuration for the main domain gildarck.com
+# ---------------------------------------------------------------------------------------------------------------------
+
 inputs = {
-  function_name  = "${local.name}"
-  description    = "Lambda authorizer for GILDARCK Photo API - validates JWT tokens"
-  handler        = "index.handler"
-  runtime        = "nodejs22.x"
-  publish        = true
-  create_role    = true
-  create_package = true
-  timeout        = 5
-  memory_size    = 512
 
-  source_path = "${get_terragrunt_dir()}/src"
+  zones = {
 
-  environment_variables = {
-    AUTH_SECRET = "gildarck-jwt-secret"
-    AUDIENCE    = "gildarck-photo-api"
-  }
-
-  attach_policy_statements = true
-  policy_statements = {
-    ParameterStore = {
-      effect    = "Allow",
-      actions   = ["ssm:GetParameter", "ssm:PutParameter"],
-      resources = ["arn:aws:ssm:${local.tags.region}:${local.aws_account_id}:parameter/gildarck-jwt-secret"]
+    "gildarck.com" = { // 0
+      comment = "gildarck.com main domain (${local.vars.ENV})"
+      tags = merge(local.tags, {
+        env = "${local.vars.ENV}"
+        domain_type = "main"
+      })
     }
+
   }
 
-  allowed_triggers = {
-    APIGatewayAny = {
-      service  = "apigateway"
-      resource = "arn:aws:lambda:${local.tags.region}:${local.aws_account_id}:function:${local.name}"
-    }
-  }
-
-  tags = local.tags
 }

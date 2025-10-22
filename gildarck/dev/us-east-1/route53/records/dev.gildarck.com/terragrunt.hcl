@@ -37,7 +37,8 @@ locals {
 dependencies {
   paths = [
     "../../zones/${local.vars.ENV}.gildarck.com",
-    "../../../rds/aurora-serverless-${local.vars.ENV}-postgresql-chat",
+    # "../../../rds/aurora-serverless-${local.vars.ENV}-postgresql-chat",
+    "../../../cloudfront/${local.vars.ENV}.gildarck.com"
   ]
 }
 
@@ -46,8 +47,12 @@ dependency "zones" {
   #skip_outputs = true
 }
 
-dependency "rds-chat" {
-  config_path = "../../../rds/aurora-serverless-${local.vars.ENV}-postgresql-chat"
+# dependency "rds-chat" {
+#   config_path = "../../../rds/aurora-serverless-${local.vars.ENV}-postgresql-chat"
+# }
+
+dependency "cloudfront" {
+  config_path = "../../../cloudfront/${local.vars.ENV}.gildarck.com"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -60,6 +65,15 @@ inputs = {
   zone_name = keys(dependency.zones.outputs.route53_zone_zone_id)[0]
 
   records = [
+    {
+      name = ""
+      type = "A"
+      alias = {
+        name                   = dependency.cloudfront.outputs.cloudfront_distribution_domain_name
+        zone_id                = dependency.cloudfront.outputs.cloudfront_distribution_hosted_zone_id
+        evaluate_target_health = false
+      }
+    },
     # {
     #   name = ""
     #   type = "TXT"
@@ -261,62 +275,62 @@ inputs = {
     #     "a0f15b6056ef44545993d99cc5f1b38e-bff40da06b806282.elb.us-east-1.amazonaws.com"
     #   ]
     # }
-    {
-      name = "apim"
-      type = "CNAME"
-      ttl  = 60
-      records = [
-        "d14r8qel7fqmph.cloudfront.net"
-      ]
-    },
-    {
-      name = "gildarck.apim"
-      type = "CNAME"
-      ttl  = 60
-      records = [
-        "d1x4366wdckcrr.cloudfront.net"
-      ]
-    },
-    {
-      name = "rtp.apim"
-      type = "CNAME"
-      ttl  = 60
-      records = [
-        "d1fplpenmpqf4.cloudfront.net"
-      ]
-    },
-    {
-      name = "rw.psgql-chat"
-      type = "CNAME"
-      ttl  = 60
-      records = [
-        dependency.rds-chat.outputs.cluster_endpoint
-      ]
-    },
-    {
-      name = "ro.psgql-chat"
-      type = "CNAME"
-      ttl  = 60
-      records = [
-        dependency.rds-chat.outputs.cluster_reader_endpoint
-      ]
-    },
-    {
-      name = "synapse"
-      type = "CNAME"
-      ttl  = 60
-      records = [
-        "d-4otmey8zkl.execute-api.us-east-1.amazonaws.com"
-      ]
-    },
-    {
-      name = "ai.apim"
-      type = "CNAME"
-      ttl  = 60
-      records = [
-        "d1bi4owkhpy10c.cloudfront.net"
-      ]
-    }
+    # {
+    #   name = "apim"
+    #   type = "CNAME"
+    #   ttl  = 60
+    #   records = [
+    #     "d14r8qel7fqmph.cloudfront.net"
+    #   ]
+    # },
+    # {
+    #   name = "gildarck.apim"
+    #   type = "CNAME"
+    #   ttl  = 60
+    #   records = [
+    #     "d1x4366wdckcrr.cloudfront.net"
+    #   ]
+    # },
+    # {
+    #   name = "rtp.apim"
+    #   type = "CNAME"
+    #   ttl  = 60
+    #   records = [
+    #     "d1fplpenmpqf4.cloudfront.net"
+    #   ]
+    # },
+    # {
+    #   name = "rw.psgql-chat"
+    #   type = "CNAME"
+    #   ttl  = 60
+    #   records = [
+    #     dependency.rds-chat.outputs.cluster_endpoint
+    #   ]
+    # },
+    # {
+    #   name = "ro.psgql-chat"
+    #   type = "CNAME"
+    #   ttl  = 60
+    #   records = [
+    #     dependency.rds-chat.outputs.cluster_reader_endpoint
+    #   ]
+    # },
+    # {
+    #   name = "synapse"
+    #   type = "CNAME"
+    #   ttl  = 60
+    #   records = [
+    #     "d-4otmey8zkl.execute-api.us-east-1.amazonaws.com"
+    #   ]
+    # },
+    # {
+    #   name = "ai.apim"
+    #   type = "CNAME"
+    #   ttl  = 60
+    #   records = [
+    #     "d1bi4owkhpy10c.cloudfront.net"
+    #   ]
+    # }
   ]
 
 }

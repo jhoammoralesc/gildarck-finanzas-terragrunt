@@ -38,16 +38,16 @@ locals {
 
 dependencies {
   paths = [
-    "../../waf/waf-fronted",
+    # "../../waf/waf-fronted",
     "../../amplify/${local.vars.ENV}.gildarck.com",
     "../../acm/${local.vars.ENV}.gildarck.com"
   ]
 }
 
-dependency "waf" {
-  config_path = "../../waf/waf-fronted"
-  #skip_outputs = true
-}
+# dependency "waf" {
+#   config_path = "../../waf/waf-fronted"
+#   #skip_outputs = true
+# }
 
 dependency "amplify" {
   config_path = "../../amplify/${local.vars.ENV}.gildarck.com"
@@ -68,7 +68,7 @@ inputs = {
   comment         = "Cloudfront distribution to amplify App."
   is_ipv6_enabled = false
   price_class     = "PriceClass_All"
-  web_acl_id      = dependency.waf.outputs.arn
+  # web_acl_id      = dependency.waf.outputs.arn
 
   origin = {
     amplify-app = {
@@ -96,16 +96,16 @@ inputs = {
     compress               = true
     allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
 
-    lambda_function_association = {
-      viewer-request = {
-        include_body = true
-        lambda_arn   = "arn:aws:lambda:us-east-1:${local.aws_account_id}:function:auth-amplify-app-edge-function:1"
-      }
-    }
+    # lambda_function_association = {
+    #   viewer-request = {
+    #     include_body = true
+    #     lambda_arn   = "arn:aws:lambda:us-east-1:${local.aws_account_id}:function:auth-amplify-app-edge-function:1"
+    #   }
+    # }
   }
 
   viewer_certificate = {
-    acm_certificate_arn = dependency.acm.outputs.acm_certificate_arn
+    acm_certificate_arn = "arn:aws:acm:us-east-1:496860676881:certificate/845c4aa4-7c7a-4b6f-9ee1-a38f3b718b5e"
     ssl_support_method  = "sni-only"
   }
 

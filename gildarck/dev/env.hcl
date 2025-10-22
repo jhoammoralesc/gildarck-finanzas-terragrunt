@@ -6,7 +6,7 @@ locals {
   #VARIABLES
   ENV = "dev"
   /* --------------------------- Amplify vars start --------------------------- */
-  AMPLIFY_GIT_TOKEN   = get_env("GIT_TOKEN_AMPLIFY")
+  AMPLIFY_GIT_TOKEN   = get_env("GIT_TOKEN_AMPLIFY_GILDARCK")
   AMPLIFY_GIT_SOURCE  = "https://github.com/jhoammoralesc/frontend-main-front.git"
   AMPLIFY_CREDENTIALS = base64encode("devUser:${get_env("DEV_AMPLIFY_BASIC_AUTH_PASS")}")
   AMPLIFY_BRANCH      = "develop"

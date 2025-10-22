@@ -53,7 +53,7 @@ inputs = {
   description          = local.name
   repository           = local.vars.AMPLIFY_GIT_SOURCE
   platform             = "WEB_COMPUTE"
-  iam_service_role_arn = [dependency.amplify-role.outputs.iam_role_arn]
+  service_role_arn     = dependency.amplify-role.outputs.iam_role_arn
 
   enable_auto_branch_creation = false
   enable_branch_auto_build    = true
@@ -77,7 +77,7 @@ inputs = {
           commands:
             - nvm i 22
             - corepack enable
-            - yarn set version stable
+            - corepack prepare yarn@4.9.4 --activate
             - yarn install --immutable
         build:
           commands:
@@ -94,7 +94,7 @@ inputs = {
   environment_variables = local.vars.AMPLIFY_VARIABLES
 
   environments = {
-    main = {
+    develop = {
       enable_notification         = true
       branch_name                 = "${local.vars.AMPLIFY_BRANCH}"
       enable_auto_build           = true
@@ -106,16 +106,16 @@ inputs = {
       ttl                         = 5
     }
   }
-  // Comment this line because the DNS record is associated with the cloudfront distribution
-  domain_config = {
-    domain_name            = local.vars.AMPLIFY_DNS
-    enable_auto_sub_domain = false
-    wait_for_verification  = false
-    sub_domain = [
-      {
-        branch_name = "main"
-        prefix      = ""
-      }
-    ]
-  }
+  
+  # domain_config = {
+  #   domain_name            = local.vars.AMPLIFY_DNS
+  #   enable_auto_sub_domain = false
+  #   wait_for_verification  = false
+  #   sub_domain = [
+  #     {
+  #       branch_name = "develop"
+  #       prefix      = ""
+  #     }
+  #   ]
+  # }
 }

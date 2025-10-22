@@ -1,11 +1,8 @@
 # ---------------------------------------------------------------------------------------------------------------------
-# TERRAGRUNT CONFIGURATION
-# This is the configuration for Terragrunt, a thin wrapper for Terraform that helps keep your code DRY and
-# maintainable: https://github.com/gruntwork-io/terragrunt
+# TERRAGRUNT CONFIGURATION - GILDARCK USER POOL
+# Simplified Cognito configuration for GILDARCK project
 # ---------------------------------------------------------------------------------------------------------------------
 
-# We override the terraform block source attribute here just for the QA environment to show how you would deploy a
-# different version of the module in a specific environment.
 terraform {
   source = "${include.envcommon.locals.base_source_url}"
 }
@@ -14,14 +11,10 @@ terraform {
 # Include configurations that are common used across multiple environments.
 # ---------------------------------------------------------------------------------------------------------------------
 
-# Include the root `terragrunt.hcl` configuration. The root configuration contains settings that are common across all
-# components and environments, such as how to configure remote state.
 include "root" {
   path = find_in_parent_folders()
 }
 
-# Include the envcommon configuration for the component. The envcommon configuration contains settings that are common
-# for the component across all environments.
 include "envcommon" {
   path   = "${dirname(find_in_parent_folders())}/_envcommon/aws/cognito/user-pool.hcl"
   expose = true
@@ -29,163 +22,122 @@ include "envcommon" {
 
 locals {
   vars             = read_terragrunt_config(find_in_parent_folders("env.hcl")).locals
+  account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl")).locals
   invitation_email = file("./email/${local.vars.ENV}/invitation.html")
   recovery_email   = file("./email/${local.vars.ENV}/password-reset.html")
-  name             = "gildarck-user-pool"
-  aws_account_id   = "559756754086"
+  name             = local.vars.COGNITO_USER_POOL_NAME
   service_vars     = read_terragrunt_config(find_in_parent_folders("service.hcl"))
   tags             = merge(local.service_vars.locals.tags, { name = local.name })
 }
 
-dependencies {
-  paths = [
-    "../../lambda/ic-apim-cognito-pre-token-generation-lambda"
-  ]
-}
-
-dependency "lambda_pre_login" {
-  config_path = "../../lambda/ic-apim-cognito-pre-token-generation-lambda"
-  #skip_outputs = true
-}
-
 # ---------------------------------------------------------------------------------------------------------------------
-# We don't need to override any of the common parameters for this environment, so we don't specify any inputs.
+# SIMPLIFIED COGNITO CONFIGURATION FOR GILDARCK
 # ---------------------------------------------------------------------------------------------------------------------
 
 inputs = {
-  name = local.name
+  name   = local.name
+  domain = local.vars.COGNITO_DOMAIN_PREFIX
 
-  domain = local.name
-
-  # We allow the public to create user profiles
-  allow_admin_create_user_only = true
-
+  # Allow user self-registration
+  allow_admin_create_user_only = false
   enable_username_case_sensitivity = false
-  advanced_security_mode           = "ENFORCED"
+  advanced_security_mode = "ENFORCED"
 
-  //Toca cambiar por consola el Trigger event Version a la V2 para que pueda funcionar
-  //No hay soporte para setear la V2 en terraform
-  lambda_pre_token_generation = dependency.lambda_pre_login.outputs.lambda_function_arn
+  # Authentication attributes
+  alias_attributes = ["email"]
+  auto_verified_attributes = ["email"]
 
-  alias_attributes = [
-    "email",
-    "preferred_username"
-  ]
-
-  auto_verified_attributes = [
-    "email"
-  ]
-
+  # OAuth configuration for web applications
   default_client_allowed_oauth_scopes = [
     "aws.cognito.signin.user.admin",
-    "openid"
+    "openid",
+    "email",
+    "profile"
   ]
 
-  default_client_allowed_oauth_flows = [
-    "code",
-    "implicit"
+  default_client_allowed_oauth_flows = ["code"]
+  default_client_generate_secret = false
+  default_client_enable_token_revocation = true
+
+  # Authentication flows
+  default_client_explicit_auth_flows = [
+    "ALLOW_USER_SRP_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH"
   ]
 
+  # Token validity
   default_client_token_validity_units = {
-    access_token  = "minutes"
-    id_token      = "minutes"
+    access_token  = "hours"
+    id_token      = "hours"
     refresh_token = "days"
   }
 
-  default_client_enable_token_revocation = true
-
+  # Device tracking
   challenge_required_on_new_device = true
-  user_device_tracking             = "USER_OPT_IN"
+  user_device_tracking = "USER_OPT_IN"
 
+  # Password policy
   password_require_lowercase = true
   password_require_numbers   = true
   password_require_uppercase = true
-  password_require_symbols   = true
+  password_require_symbols   = false
+  password_minimum_length    = 8
+  temporary_password_validity_days = 7
 
-  temporary_password_validity_days = 3
-
-  default_client_token_validity_units = {
-    refresh_token = "days"
-    access_token  = "hours"
-    id_token      = "hours"
-  }
-
-  attribute_mapping = {
-    email    = "email"
-    nickname = "groupId"
-  }
-
-  default_client_generate_secret = false
-
-  default_client_explicit_auth_flows = [
-    "ALLOW_ADMIN_USER_PASSWORD_AUTH",
-    "ALLOW_REFRESH_TOKEN_AUTH",
-    "ALLOW_USER_SRP_AUTH",
-    "ALLOW_USER_PASSWORD_AUTH"
-  ]
-
-  password_minimum_length = 10
-
+  # Application clients
   clients = [
     {
-      name            = "apim"
-      read_attributes = ["email", "email_verified", "preferred_username", "nickname", "custom:IPs", "custom:commercial_id", "custom:company", "custom:requested_scopes"]
+      name = "gildarck-web-app"
+      read_attributes = [
+        "email", 
+        "email_verified", 
+        "preferred_username",
+        "custom:role",
+        "custom:company"
+      ]
       allowed_oauth_scopes = [
         "aws.cognito.signin.user.admin",
-        "openid"
+        "openid",
+        "email",
+        "profile"
       ]
-      allowed_oauth_flows  = ["implicit", "code"]
-      callback_urls        = ["https://portal.apim.${local.vars.ENV}.gildarck.com"]
-      logout_urls          = ["https://portal.apim.${local.vars.ENV}.gildarck.com"]
-      default_redirect_uri = "https://portal.apim.${local.vars.ENV}.gildarck.com"
+      allowed_oauth_flows = ["code"]
+      callback_urls = [
+        "https://${local.vars.ENV}.gildarck.com/auth/callback",
+        "https://bo.${local.vars.ENV}.gildarck.com/auth/callback"
+      ]
+      logout_urls = [
+        "https://${local.vars.ENV}.gildarck.com/auth/logout",
+        "https://bo.${local.vars.ENV}.gildarck.com/auth/logout"
+      ]
+      default_redirect_uri = "https://${local.vars.ENV}.gildarck.com/auth/callback"
     }
   ]
 
+  # Custom attributes for GILDARCK
   schema_attributes = [
     {
-      name       = "IPs",
-      type       = "String"
-      required   = false
-      min_length = 8
-      max_length = 256
-    },
-    {
-      name       = "commercial_id",
-      type       = "String"
-      required   = false
-      min_length = 6
-      max_length = 25
-    },
-    {
-      name       = "commercial_id_type",
-      type       = "String"
-      required   = false
-      min_length = 1
-      max_length = 25
-    },
-    {
-      name       = "company",
+      name       = "role"
       type       = "String"
       required   = false
       min_length = 1
       max_length = 50
     },
     {
-      name       = "requested_scopes",
+      name       = "company"
       type       = "String"
       required   = false
       min_length = 1
-      max_length = 500
+      max_length = 100
     }
   ]
 
-  invite_email_subject  = "Bienvenido(a) gildarck Api Manager"
-  email_subject         = "Recuperar contraseña gildarck Api Manager"
+  # Email configuration - using Cognito default email
+  invite_email_subject  = "Bienvenido a GILDARCK"
+  email_subject         = "Recuperar contraseña - GILDARCK"
   invite_email_message  = local.invitation_email
   email_message         = local.recovery_email
-  email_sending_account = "DEVELOPER"
-  email_source_arn      = "arn:aws:ses:us-east-1:${local.aws_account_id}:identity/${local.vars.ENV}.gildarck.com"
-  email_from_address    = "no-reply@${local.vars.ENV}.gildarck.com"
+  email_sending_account = "COGNITO_DEFAULT"
 
   tags = local.tags
 }
