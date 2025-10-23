@@ -1,179 +1,442 @@
 # ---------------------------------------------------------------------------------------------------------------------
-# TERRAGRUNT CONFIGURATION - GILDARCK PHOTO API
+# TERRAGRUNT CONFIGURATION
+# This is the configuration for Terragrunt, a thin wrapper for Terraform that helps keep your code DRY and
+# maintainable: https://github.com/gruntwork-io/terragrunt
 # ---------------------------------------------------------------------------------------------------------------------
 
 terraform {
-  source = include.envcommon.locals.base_source_url
+  source = "git@github.com:jhoammoralesc/infrastructure-terraform-modules.git//aws-apigateway"
 }
 
 include "root" {
   path = find_in_parent_folders()
 }
 
-include "envcommon" {
-  path   = "${dirname(find_in_parent_folders())}/_envcommon/aws/apigateway/vpclink-api.hcl"
-  expose = true
-}
-
 locals {
   vars         = read_terragrunt_config(find_in_parent_folders("env.hcl")).locals
   name         = "api.dev.gildarck.com"
   service_vars = read_terragrunt_config(find_in_parent_folders("service.hcl"))
-  tags         = merge(local.service_vars.locals.tags, { name = local.name })
-  vpc_link_id  = "y38ap6"
+  tags         = { 
+    name = local.name
+    owner = "gildarck"
+    environment = "dev"
+    region = "us-east-1"
+    service = "apigateway"
+  }
   
   responseParameters = {
     "method.response.header.Content-Type"                 = "integration.response.header.Content-Type"
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,Authorization,X-Api-Key'"
-    "method.response.header.Access-Control-Allow-Methods" = "'GET,POST,PUT,DELETE,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,POST,OPTIONS,DELETE,PATCH,PUT'"
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 
   headers = {
     "Content-Type" = { "type" = "string" }
-    "Access-Control-Allow-Origin" = { "type" = "string" }
     "Access-Control-Allow-Headers" = { "type" = "string" }
     "Access-Control-Allow-Methods" = { "type" = "string" }
+    "Access-Control-Allow-Origin" = { "type" = "string" }
   }
 
-  integrationResponses = {
+  integration_responses = {
     200 = { statusCode = 200, responseParameters = local.responseParameters }
+    201 = { statusCode = 201, responseParameters = local.responseParameters }
     400 = { statusCode = 400, responseParameters = local.responseParameters }
     401 = { statusCode = 401, responseParameters = local.responseParameters }
+    403 = { statusCode = 403, responseParameters = local.responseParameters }
     404 = { statusCode = 404, responseParameters = local.responseParameters }
     500 = { statusCode = 500, responseParameters = local.responseParameters }
   }
 
   responses = {
     200 = { description = "200 response", headers = local.headers }
+    201 = { description = "201 response", headers = local.headers }
     400 = { description = "400 response", headers = local.headers }
     401 = { description = "401 response", headers = local.headers }
+    403 = { description = "403 response", headers = local.headers }
     404 = { description = "404 response", headers = local.headers }
     500 = { description = "500 response", headers = local.headers }
   }
+
+  options = {
+    consumes = ["application/json"]
+    x-amazon-apigateway-integration = {
+      type = "MOCK"
+      requestTemplates = { "application/json" = "{\"statusCode\": 200}" }
+      responses = local.integration_responses
+      passthroughBehavior = "WHEN_NO_MATCH"
+    }
+    responses = local.responses
+  }
+}
+
+dependencies {
+  paths = [
+    "../../lambda/function-authorizer",
+    "../../lambda/user-crud"
+  ]
+}
+
+dependency "authorizer" {
+  config_path = "../../lambda/function-authorizer"
+}
+
+dependency "user_crud" {
+  config_path = "../../lambda/user-crud"
 }
 
 inputs = {
-  name        = local.name
-  description = "Gildarck Photo Management API"
-  tags        = local.tags
-
-  # Photo Management Endpoints
-  resources = {
-    # Photos CRUD
-    "/photos" = {
-      methods = {
-        "GET" = {
-          description          = "Get all photos"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
-        }
-        "POST" = {
-          description          = "Upload new photo"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
-        }
-        "OPTIONS" = {
-          description          = "CORS preflight"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
+  api_name = local.name
+  api_description = "GILDARCK Photo Management API - private VPC with MOCK endpoints"
+  
+  # Stage configuration
+  stage_name = "dev"
+  
+  # Disable logging temporarily to avoid CloudWatch role requirement
+  logging_level = "OFF"
+  
+  # Public API Gateway configuration (EDGE)
+  endpoint_type = "EDGE"
+  
+  openapi_config = {
+    openapi = "3.0.1"
+    info = {
+      title = local.name
+      version = "1.0"
+      description = "GILDARCK Private API with Firebase JWT authorization - MOCK endpoints for development"
+    }
+    
+    components = {
+      securitySchemes = {
+        FirebaseJWTAuthorizer = {
+          type = "apiKey"
+          name = "Authorization"
+          in = "header"
+          x-amazon-apigateway-authtype = "custom"
+          x-amazon-apigateway-authorizer = {
+            type = "request"
+            authorizerUri = dependency.authorizer.outputs.lambda_function_invoke_arn
+            authorizerResultTtlInSeconds = 0
+            identitySource = "method.request.header.Authorization"
+          }
         }
       }
     }
-
-    "/photos/{id}" = {
-      methods = {
-        "GET" = {
-          description          = "Get photo by ID"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
+    
+    paths = {
+      "/platform/v1/account/register" = {
+        post = {
+          x-amazon-apigateway-integration = {
+            type = "MOCK"
+            requestTemplates = { "application/json" = "{\"statusCode\": 201}" }
+            responses = {
+              201 = {
+                statusCode = 201
+                responseTemplates = { "application/json" = "{\"message\": \"User registered - MOCK\", \"userId\": \"mock-user-123\"}" }
+                responseParameters = local.responseParameters
+              }
+            }
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              type     = "string"
+            }
+          ]
         }
-        "PUT" = {
-          description          = "Update photo"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
-        }
-        "DELETE" = {
-          description          = "Delete photo"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
-        }
-        "OPTIONS" = {
-          description          = "CORS preflight"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
-        }
+        options = local.options
       }
-    }
 
-    # Albums CRUD
-    "/albums" = {
-      methods = {
-        "GET" = {
-          description          = "Get all albums"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
+      "/platform/v1/account/login" = {
+        post = {
+          x-amazon-apigateway-integration = {
+            type = "MOCK"
+            requestTemplates = { "application/json" = "{\"statusCode\": 200}" }
+            responses = {
+              200 = {
+                statusCode = 200
+                responseTemplates = { "application/json" = "{\"message\": \"Login successful - MOCK\", \"token\": \"mock-jwt-token\"}" }
+                responseParameters = local.responseParameters
+              }
+            }
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              type     = "string"
+            }
+          ]
         }
-        "POST" = {
-          description          = "Create new album"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
-        }
-        "OPTIONS" = {
-          description          = "CORS preflight"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
-        }
+        options = local.options
       }
-    }
 
-    "/albums/{id}" = {
-      methods = {
-        "GET" = {
-          description          = "Get album by ID"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
+      "/platform/v1/users" = {
+        get = {
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.user_crud.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              type     = "string"
+            },
+            {
+              name     = "Authorization"
+              in       = "header"
+              required = false
+              type     = "string"
+            }
+          ]
+          security = [
+            {
+              "FirebaseJWTAuthorizer" = []
+            }
+          ]
         }
-        "PUT" = {
-          description          = "Update album"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
+
+        post = {
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.user_crud.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              type     = "string"
+            },
+            {
+              name     = "Authorization"
+              in       = "header"
+              required = false
+              type     = "string"
+            }
+          ]
+          security = [
+            {
+              "FirebaseJWTAuthorizer" = []
+            }
+          ]
         }
-        "DELETE" = {
-          description          = "Delete album"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
-        }
-        "OPTIONS" = {
-          description          = "CORS preflight"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
-        }
+        options = local.options
       }
-    }
 
-    # User management
-    "/user/profile" = {
-      methods = {
-        "GET" = {
-          description          = "Get user profile"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
+      "/platform/v1/users/{id}" = {
+        get = {
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.user_crud.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "id"
+              in       = "path"
+              required = true
+              type     = "string"
+            },
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              type     = "string"
+            },
+            {
+              name     = "Authorization"
+              in       = "header"
+              required = false
+              type     = "string"
+            }
+          ]
+          security = [
+            {
+              "FirebaseJWTAuthorizer" = []
+            }
+          ]
         }
-        "PUT" = {
-          description          = "Update user profile"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
+
+        put = {
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.user_crud.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "id"
+              in       = "path"
+              required = true
+              type     = "string"
+            },
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              type     = "string"
+            },
+            {
+              name     = "Authorization"
+              in       = "header"
+              required = false
+              type     = "string"
+            }
+          ]
+          security = [
+            {
+              "FirebaseJWTAuthorizer" = []
+            }
+          ]
         }
-        "OPTIONS" = {
-          description          = "CORS preflight"
-          integrationResponses = local.integrationResponses
-          responses            = local.responses
+
+        delete = {
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.user_crud.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "id"
+              in       = "path"
+              required = true
+              type     = "string"
+            },
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              type     = "string"
+            },
+            {
+              name     = "Authorization"
+              in       = "header"
+              required = false
+              type     = "string"
+            }
+          ]
+          security = [
+            {
+              "FirebaseJWTAuthorizer" = []
+            }
+          ]
         }
+        options = local.options
+      }
+
+      "/photos" = {
+        get = {
+          security = [{ FirebaseJWTAuthorizer = [] }]
+          x-amazon-apigateway-integration = {
+            type = "MOCK"
+            requestTemplates = { "application/json" = "{\"statusCode\": 200}" }
+            responses = {
+              200 = {
+                statusCode = 200
+                responseTemplates = { "application/json" = "{\"message\": \"List photos - MOCK endpoint\", \"photos\": []}" }
+                responseParameters = local.responseParameters
+              }
+            }
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+        }
+        
+        post = {
+          security = [{ FirebaseJWTAuthorizer = [] }]
+          x-amazon-apigateway-integration = {
+            type = "MOCK"
+            requestTemplates = { "application/json" = "{\"statusCode\": 201}" }
+            responses = {
+              201 = {
+                statusCode = 201
+                responseTemplates = { "application/json" = "{\"message\": \"Photo uploaded - MOCK endpoint\", \"id\": \"mock-photo-123\"}" }
+                responseParameters = local.responseParameters
+              }
+            }
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+        }
+        
+        options = local.options
+      }
+      
+      "/photos/{id}" = {
+        get = {
+          security = [{ FirebaseJWTAuthorizer = [] }]
+          parameters = [{ name = "id", in = "path", required = true, type = "string" }]
+          x-amazon-apigateway-integration = {
+            type = "MOCK"
+            requestTemplates = { "application/json" = "{\"statusCode\": 200}" }
+            responses = {
+              200 = {
+                statusCode = 200
+                responseTemplates = { "application/json" = "{\"message\": \"Get photo by ID - MOCK endpoint\", \"id\": \"$input.params('id')\"}" }
+                responseParameters = local.responseParameters
+              }
+            }
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+        }
+        
+        delete = {
+          security = [{ FirebaseJWTAuthorizer = [] }]
+          parameters = [{ name = "id", in = "path", required = true, type = "string" }]
+          x-amazon-apigateway-integration = {
+            type = "MOCK"
+            requestTemplates = { "application/json" = "{\"statusCode\": 200}" }
+            responses = {
+              200 = {
+                statusCode = 200
+                responseTemplates = { "application/json" = "{\"message\": \"Photo deleted - MOCK endpoint\", \"id\": \"$input.params('id')\"}" }
+                responseParameters = local.responseParameters
+              }
+            }
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+        }
+        
+        options = local.options
       }
     }
   }
-
-  vpc_link_id = local.vpc_link_id
-  domain_name = local.name
+  
+  # Lambda permissions for API Gateway
+  lambda_permissions = {
+    user_crud = {
+      statement_id  = "AllowExecutionFromAPIGateway"
+      action        = "lambda:InvokeFunction"
+      function_name = dependency.user_crud.outputs.lambda_function_name
+      principal     = "apigateway.amazonaws.com"
+      source_arn    = "arn:aws:execute-api:us-east-1:*:*/*/*"
+    }
+  }
+  
+  tags = local.tags
 }

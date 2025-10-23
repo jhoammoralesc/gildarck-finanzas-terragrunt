@@ -4,10 +4,8 @@
 # maintainable: https://github.com/gruntwork-io/terragrunt
 # ---------------------------------------------------------------------------------------------------------------------
 
-# We override the terraform block source attribute here just for the QA environment to show how you would deploy a
-# different version of the module in a specific environment.
 terraform {
-  source = "${include.envcommon.locals.base_source_url}"
+  source = "git@github.com:jhoammoralesc/infrastructure-terraform-modules.git//aws-lambda"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -20,13 +18,6 @@ include "root" {
   path = find_in_parent_folders()
 }
 
-# Include the envcommon configuration for the component. The envcommon configuration contains settings that are common
-# for the component across all environments.
-include "envcommon" {
-  path   = "${dirname(find_in_parent_folders())}/_envcommon/aws/lambda/function.hcl"
-  expose = true
-}
-
 locals {
   vars           = read_terragrunt_config(find_in_parent_folders("env.hcl")).locals
   name           = "gildarck-authorizer"
@@ -36,17 +27,17 @@ locals {
 }
 
 inputs = {
-  function_name  = "${local.name}"
+  function_name  = local.name
   description    = "Lambda authorizer for GILDARCK Photo API - validates JWT tokens"
   handler        = "index.handler"
   runtime        = "nodejs22.x"
   publish        = true
   create_role    = true
-  create_package = true
+  create_package = false
   timeout        = 5
   memory_size    = 512
 
-  source_path = "${get_terragrunt_dir()}/src"
+  local_existing_package = "lambda-authorizer.zip"
 
   environment_variables = {
     AUTH_SECRET = "gildarck-jwt-secret"
