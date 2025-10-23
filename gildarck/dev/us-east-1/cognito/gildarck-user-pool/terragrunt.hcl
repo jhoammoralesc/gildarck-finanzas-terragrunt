@@ -62,6 +62,7 @@ inputs = {
   # Authentication flows
   default_client_explicit_auth_flows = [
     "ALLOW_USER_SRP_AUTH",
+    "ALLOW_USER_PASSWORD_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH"
   ]
 

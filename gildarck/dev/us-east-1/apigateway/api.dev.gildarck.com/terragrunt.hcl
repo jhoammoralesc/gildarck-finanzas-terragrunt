@@ -188,6 +188,27 @@ inputs = {
         options = local.options
       }
 
+      "/auth/set-new-password" = {
+        post = {
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.user_crud.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              type     = "string"
+            }
+          ]
+        }
+        options = local.options
+      }
+
       # Legacy endpoints - Keep for backward compatibility but redirect to lambda
       "/platform/v1/account/register" = {
         post = {

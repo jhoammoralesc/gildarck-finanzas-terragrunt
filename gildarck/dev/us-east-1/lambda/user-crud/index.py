@@ -58,6 +58,8 @@ def lambda_handler(event, context):
             return register_user(event)
         elif path == '/auth/change-password' and http_method == 'POST':
             return change_password(event)
+        elif path == '/auth/set-new-password' and http_method == 'POST':
+            return set_new_password(event)
         # Legacy auth endpoints (redirect to new functions)
         elif path == '/platform/v1/account/login' and http_method == 'POST':
             return login_user(event)
@@ -111,6 +113,18 @@ def login_user(event):
             AuthFlow='USER_PASSWORD_AUTH',
             AuthParameters=auth_params
         )
+        
+        # Check if password change is required
+        if 'ChallengeName' in response and response['ChallengeName'] == 'NEW_PASSWORD_REQUIRED':
+            return {
+                'statusCode': 200,
+                'headers': cors_headers(event),
+                'body': json.dumps({
+                    'challenge': 'NEW_PASSWORD_REQUIRED',
+                    'session': response['Session'],
+                    'message': 'Password change required for first login'
+                })
+            }
         
         return {
             'statusCode': 200,
@@ -203,6 +217,48 @@ def change_password(event):
                 'headers': cors_headers(event),
                 'body': json.dumps({'error': 'Invalid current password or token'})
             }
+        return {
+            'statusCode': 400,
+            'headers': cors_headers(event),
+            'body': json.dumps({'error': e.response['Error']['Message']})
+        }
+
+def set_new_password(event):
+    try:
+        body = json.loads(event['body'])
+        session = body['session']
+        username = body['username']
+        new_password = body['new_password']
+        
+        challenge_responses = {
+            'USERNAME': username,
+            'NEW_PASSWORD': new_password
+        }
+        
+        secret_hash = get_secret_hash(username)
+        if secret_hash:
+            challenge_responses['SECRET_HASH'] = secret_hash
+        
+        response = cognito_client.respond_to_auth_challenge(
+            ClientId=CLIENT_ID,
+            ChallengeName='NEW_PASSWORD_REQUIRED',
+            Session=session,
+            ChallengeResponses=challenge_responses
+        )
+        
+        return {
+            'statusCode': 200,
+            'headers': cors_headers(event),
+            'body': json.dumps({
+                'message': 'Password set successfully',
+                'access_token': response['AuthenticationResult']['AccessToken'],
+                'id_token': response['AuthenticationResult']['IdToken'],
+                'refresh_token': response['AuthenticationResult']['RefreshToken'],
+                'expires_in': response['AuthenticationResult']['ExpiresIn']
+            })
+        }
+        
+    except ClientError as e:
         return {
             'statusCode': 400,
             'headers': cors_headers(event),
