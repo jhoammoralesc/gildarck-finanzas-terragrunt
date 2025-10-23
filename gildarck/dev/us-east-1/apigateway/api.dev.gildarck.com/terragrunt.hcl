@@ -124,18 +124,77 @@ inputs = {
     }
     
     paths = {
+      # Auth endpoints - No authentication required
+      "/auth/login" = {
+        post = {
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.user_crud.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              type     = "string"
+            }
+          ]
+        }
+        options = local.options
+      }
+
+      "/auth/register" = {
+        post = {
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.user_crud.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              type     = "string"
+            }
+          ]
+        }
+        options = local.options
+      }
+
+      "/auth/change-password" = {
+        post = {
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.user_crud.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              type     = "string"
+            }
+          ]
+        }
+        options = local.options
+      }
+
+      # Legacy endpoints - Keep for backward compatibility but redirect to lambda
       "/platform/v1/account/register" = {
         post = {
           x-amazon-apigateway-integration = {
-            type = "MOCK"
-            requestTemplates = { "application/json" = "{\"statusCode\": 201}" }
-            responses = {
-              201 = {
-                statusCode = 201
-                responseTemplates = { "application/json" = "{\"message\": \"User registered - MOCK\", \"userId\": \"mock-user-123\"}" }
-                responseParameters = local.responseParameters
-              }
-            }
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.user_crud.outputs.lambda_function_invoke_arn
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -154,15 +213,9 @@ inputs = {
       "/platform/v1/account/login" = {
         post = {
           x-amazon-apigateway-integration = {
-            type = "MOCK"
-            requestTemplates = { "application/json" = "{\"statusCode\": 200}" }
-            responses = {
-              200 = {
-                statusCode = 200
-                responseTemplates = { "application/json" = "{\"message\": \"Login successful - MOCK\", \"token\": \"mock-jwt-token\"}" }
-                responseParameters = local.responseParameters
-              }
-            }
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.user_crud.outputs.lambda_function_invoke_arn
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses

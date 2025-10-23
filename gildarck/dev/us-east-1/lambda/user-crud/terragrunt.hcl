@@ -52,7 +52,10 @@ inputs = {
         "cognito-idp:AdminUpdateUserAttributes",
         "cognito-idp:ListUsers",
         "cognito-idp:AdminSetUserPassword",
-        "cognito-idp:AdminConfirmSignUp"
+        "cognito-idp:AdminConfirmSignUp",
+        "cognito-idp:InitiateAuth",
+        "cognito-idp:SignUp",
+        "cognito-idp:ChangePassword"
       ]
       resources = [dependency.cognito.outputs.user_pool.arn]
     }

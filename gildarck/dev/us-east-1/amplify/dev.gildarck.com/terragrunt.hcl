@@ -76,12 +76,10 @@ inputs = {
         preBuild:
           commands:
             - nvm i 22
-            - corepack enable
-            - corepack prepare yarn@4.9.4 --activate
-            - yarn install --immutable
+            - npm ci --ignore-scripts
         build:
           commands:
-            - yarn build
+            - npm run build
       artifacts:
         baseDirectory: .next
         files:
