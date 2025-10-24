@@ -12,6 +12,14 @@ locals {
   name = "gildarck-media-${local.environment}"
 }
 
+dependencies {
+  paths = ["../../lambda/media-processor"]
+}
+
+dependency "media_processor" {
+  config_path = "../../lambda/media-processor"
+}
+
 inputs = {
   bucket = local.name
   
@@ -58,6 +66,20 @@ inputs = {
       max_age_seconds = 3000
     }
   ]
+  
+  notification = {
+    lambda_notifications = {
+      media_processor = {
+        function_arn  = dependency.media_processor.outputs.lambda_function_arn
+        function_name = dependency.media_processor.outputs.lambda_function_name
+        events        = ["s3:ObjectCreated:*"]
+      }
+    }
+  }
+  
+  eventbridge_configuration = {
+    eventbridge = {}
+  }
   
   tags = {
     Environment = local.environment

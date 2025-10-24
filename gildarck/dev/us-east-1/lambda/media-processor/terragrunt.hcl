@@ -1,46 +1,35 @@
+terraform {
+  source = "${include.envcommon.locals.base_source_url}"
+}
+
 include "root" {
   path = find_in_parent_folders()
 }
 
-terraform {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-lambda.git?ref=v7.7.1"
-}
-
-dependency "s3_media" {
-  config_path = "../../s3/media-storage"
-}
-
-dependency "dynamodb_metadata" {
-  config_path = "../../dynamodb/media-metadata"
+include "envcommon" {
+  path   = "${dirname(find_in_parent_folders())}/_envcommon/aws/lambda/function.hcl"
+  expose = true
 }
 
 locals {
-  environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  region_vars = read_terragrunt_config(find_in_parent_folders("region.hcl"))
-  environment = local.environment_vars.locals.environment
-  aws_region = local.region_vars.locals.aws_region
-  name = "gildarck-media-processor-${local.environment}"
+  vars         = read_terragrunt_config(find_in_parent_folders("env.hcl")).locals
+  name         = "gildarck-media-processor"
+  service_vars = read_terragrunt_config(find_in_parent_folders("service.hcl"))
+  tags         = merge(local.service_vars.locals.tags, { name = local.name })
 }
 
 inputs = {
-  function_name = local.name
-  description   = "Process uploaded media files and extract metadata"
-  handler       = "index.lambda_handler"
-  runtime       = "python3.12"
-  timeout       = 300
-  memory_size   = 1024
-  
-  source_path = "./index.py"
-  
-  layers = [
-    "arn:aws:lambda:us-east-1:770693421928:layer:Klayers-p312-Pillow:1"
-  ]
-  
-  environment_variables = {
-    S3_BUCKET = dependency.s3_media.outputs.s3_bucket_id
-    DYNAMODB_TABLE = dependency.dynamodb_metadata.outputs.dynamodb_table_id
-    REGION = local.aws_region
-  }
+  function_name  = "${local.name}"
+  description    = "Lambda function for media processing with AI analysis"
+  handler        = "index.lambda_handler"
+  runtime        = "python3.12"
+  architectures  = ["arm64"]
+  timeout        = 300
+  memory_size    = 1024
+  create_package = false
+  publish        = true
+
+  local_existing_package = "lambda.zip"
   
   attach_policy_statements = true
   policy_statements = {
@@ -50,7 +39,7 @@ inputs = {
         "s3:GetObject",
         "s3:PutObject"
       ]
-      resources = ["${dependency.s3_media.outputs.s3_bucket_arn}/*"]
+      resources = ["arn:aws:s3:::gildarck-media-dev/*"]
     }
     dynamodb_access = {
       effect = "Allow"
@@ -59,8 +48,8 @@ inputs = {
         "dynamodb:Query"
       ]
       resources = [
-        dependency.dynamodb_metadata.outputs.dynamodb_table_arn,
-        "${dependency.dynamodb_metadata.outputs.dynamodb_table_arn}/index/*"
+        "arn:aws:dynamodb:us-east-1:496860676881:table/gildarck-media-metadata-dev",
+        "arn:aws:dynamodb:us-east-1:496860676881:table/gildarck-media-metadata-dev/index/*"
       ]
     }
     rekognition_access = {
@@ -73,9 +62,18 @@ inputs = {
     }
   }
   
-  tags = {
-    Environment = local.environment
-    Service     = "lambda"
-    Name        = local.name
+  allowed_triggers = {
+    S3EventNotification = {
+      service  = "events"
+      resource = "*"
+    }
   }
+  
+  environment_variables = {
+    S3_BUCKET      = "gildarck-media-dev"
+    DYNAMODB_TABLE = "gildarck-media-metadata-dev"
+    REGION         = "us-east-1"
+  }
+
+  tags = local.tags
 }
