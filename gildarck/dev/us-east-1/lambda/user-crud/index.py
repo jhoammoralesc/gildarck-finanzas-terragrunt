@@ -60,6 +60,8 @@ def lambda_handler(event, context):
             return change_password(event)
         elif path == '/auth/set-new-password' and http_method == 'POST':
             return set_new_password(event)
+        elif path == '/auth/logout' and http_method == 'POST':
+            return logout_user(event)
         # Legacy auth endpoints (redirect to new functions)
         elif path == '/platform/v1/account/login' and http_method == 'POST':
             return login_user(event)
@@ -120,21 +122,37 @@ def login_user(event):
                 'statusCode': 200,
                 'headers': cors_headers(event),
                 'body': json.dumps({
+                    'success': True,
                     'challenge': 'NEW_PASSWORD_REQUIRED',
                     'session': response['Session'],
                     'message': 'Password change required for first login'
                 })
             }
         
+        # Get user info for successful login
+        user_info = cognito_client.get_user(AccessToken=response['AuthenticationResult']['AccessToken'])
+        
+        user_attributes = {}
+        for attr in user_info['UserAttributes']:
+            user_attributes[attr['Name']] = attr['Value']
+        
         return {
             'statusCode': 200,
             'headers': cors_headers(event),
             'body': json.dumps({
+                'success': True,
                 'message': 'Login successful',
-                'access_token': response['AuthenticationResult']['AccessToken'],
-                'id_token': response['AuthenticationResult']['IdToken'],
-                'refresh_token': response['AuthenticationResult']['RefreshToken'],
-                'expires_in': response['AuthenticationResult']['ExpiresIn']
+                'data': {
+                    'access_token': response['AuthenticationResult']['AccessToken'],
+                    'id_token': response['AuthenticationResult']['IdToken'],
+                    'refresh_token': response['AuthenticationResult']['RefreshToken'],
+                    'expires_in': response['AuthenticationResult']['ExpiresIn'],
+                    'user': {
+                        'id': user_attributes.get('sub'),
+                        'email': user_attributes.get('email'),
+                        'name': user_attributes.get('name', '')
+                    }
+                }
             })
         }
         
@@ -246,15 +264,30 @@ def set_new_password(event):
             ChallengeResponses=challenge_responses
         )
         
+        # Get user info for successful password set
+        user_info = cognito_client.get_user(AccessToken=response['AuthenticationResult']['AccessToken'])
+        
+        user_attributes = {}
+        for attr in user_info['UserAttributes']:
+            user_attributes[attr['Name']] = attr['Value']
+        
         return {
             'statusCode': 200,
             'headers': cors_headers(event),
             'body': json.dumps({
+                'success': True,
                 'message': 'Password set successfully',
-                'access_token': response['AuthenticationResult']['AccessToken'],
-                'id_token': response['AuthenticationResult']['IdToken'],
-                'refresh_token': response['AuthenticationResult']['RefreshToken'],
-                'expires_in': response['AuthenticationResult']['ExpiresIn']
+                'data': {
+                    'access_token': response['AuthenticationResult']['AccessToken'],
+                    'id_token': response['AuthenticationResult']['IdToken'],
+                    'refresh_token': response['AuthenticationResult']['RefreshToken'],
+                    'expires_in': response['AuthenticationResult']['ExpiresIn'],
+                    'user': {
+                        'id': user_attributes.get('sub'),
+                        'email': user_attributes.get('email'),
+                        'name': user_attributes.get('name', '')
+                    }
+                }
             })
         }
         
@@ -263,6 +296,37 @@ def set_new_password(event):
             'statusCode': 400,
             'headers': cors_headers(event),
             'body': json.dumps({'error': e.response['Error']['Message']})
+        }
+
+def logout_user(event):
+    try:
+        body = json.loads(event['body'])
+        access_token = body.get('access_token')
+        
+        if access_token:
+            # Invalidate the access token
+            cognito_client.global_sign_out(
+                AccessToken=access_token
+            )
+        
+        return {
+            'statusCode': 200,
+            'headers': cors_headers(event),
+            'body': json.dumps({
+                'success': True,
+                'message': 'Logout successful'
+            })
+        }
+        
+    except ClientError as e:
+        # Even if token is invalid, we consider logout successful
+        return {
+            'statusCode': 200,
+            'headers': cors_headers(event),
+            'body': json.dumps({
+                'success': True,
+                'message': 'Logout successful'
+            })
         }
 
 def create_user(event):
