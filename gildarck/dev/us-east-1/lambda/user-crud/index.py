@@ -6,13 +6,42 @@ import hashlib
 import base64
 from botocore.exceptions import ClientError
 
-# Initialize Cognito client
+# Initialize clients
 cognito_client = boto3.client('cognito-idp', region_name=os.environ['REGION'])
+s3_client = boto3.client('s3', region_name=os.environ['REGION'])
 
 USER_POOL_ID = os.environ['USER_POOL_ID']
 CLIENT_ID = os.environ['CLIENT_ID']
 CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
 CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*')
+S3_BUCKET = os.environ.get('S3_BUCKET', 'gildarck-media-dev')
+
+def create_user_folder_structure(cognito_sub):
+    """Create Google Photos-like folder structure for new user"""
+    from datetime import datetime
+    current_year = datetime.now().year
+    
+    folders = [
+        f"{cognito_sub}/originals/",
+        f"{cognito_sub}/originals/{current_year}/",
+        f"{cognito_sub}/thumbnails/",
+        f"{cognito_sub}/thumbnails/small/",
+        f"{cognito_sub}/thumbnails/medium/",
+        f"{cognito_sub}/thumbnails/large/",
+        f"{cognito_sub}/compressed/",
+        f"{cognito_sub}/trash/"
+    ]
+    
+    for folder in folders:
+        try:
+            s3_client.put_object(
+                Bucket=S3_BUCKET,
+                Key=folder,
+                Body=b''
+            )
+        except Exception as e:
+            print(f"Error creating folder {folder}: {str(e)}")
+            raise e
 
 def get_secret_hash(username):
     if not CLIENT_SECRET:
@@ -191,13 +220,26 @@ def register_user(event):
             ]
         )
         
+        # Get the Cognito sub (unique identifier)
+        cognito_sub = response['User']['Username']
+        
+        # Create S3 folder structure for the user
+        try:
+            create_user_folder_structure(cognito_sub)
+            folders_created = True
+        except Exception as e:
+            print(f"Warning: Could not create S3 folders for user {cognito_sub}: {str(e)}")
+            folders_created = False
+        
         return {
             'statusCode': 201,
             'headers': cors_headers(event),
             'body': json.dumps({
                 'message': 'User registered successfully. Check your email for temporary password.',
-                'user_sub': response['User']['Username'],
-                'status': response['User']['UserStatus']
+                'user_sub': cognito_sub,
+                'status': response['User']['UserStatus'],
+                'folders_created': folders_created,
+                's3_structure': f"{cognito_sub}/{{originals,thumbnails,compressed,trash}}/"
             })
         }
         

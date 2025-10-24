@@ -20,12 +20,17 @@ locals {
 
 dependencies {
   paths = [
-    "../../cognito/gildarck-user-pool"
+    "../../cognito/gildarck-user-pool",
+    "../../s3/media-storage"
   ]
 }
 
 dependency "cognito" {
   config_path = "../../cognito/gildarck-user-pool"
+}
+
+dependency "s3_media" {
+  config_path = "../../s3/media-storage"
 }
 
 inputs = {
@@ -59,6 +64,13 @@ inputs = {
       ]
       resources = [dependency.cognito.outputs.user_pool.arn]
     }
+    s3_access = {
+      effect = "Allow"
+      actions = [
+        "s3:PutObject"
+      ]
+      resources = ["${dependency.s3_media.outputs.s3_bucket_arn}/*"]
+    }
   }
   
   allowed_triggers = {
@@ -73,6 +85,7 @@ inputs = {
     CLIENT_ID    = dependency.cognito.outputs.clients["gildarck-web-app"].id
     REGION       = "us-east-1"
     CORS_ORIGINS = "https://dev.gildarck.com"
+    S3_BUCKET    = dependency.s3_media.outputs.s3_bucket_id
   }
 
   tags = local.tags

@@ -123,13 +123,27 @@ gildarck/
   - Ubicación GPS
 - [x] Esquema de metadatos completo como Google Photos
 
-### 🔄 En Desarrollo
-- [ ] Lambda de procesamiento de medios (en progreso)
-- [ ] Integración con AWS Rekognition
+### ✅ Sistema de Procesamiento Completado
+- [x] Lambda de procesamiento de medios con EventBridge
+- [x] Integración con AWS Rekognition para análisis AI
+- [x] Pipeline S3 → EventBridge → Lambda → DynamoDB
+- [x] Soporte para Cognito sub como UID único
+- [x] Metadatos completos estilo Google Photos
+- [x] Estructura: `{cognito-sub}/media/{category}/{filename}`
+
+### 🔄 Sistema de Carga en Background (En Desarrollo)
+- [ ] **Multipart Upload API** - Carga de archivos grandes en chunks
+- [ ] **SQS Queue Processing** - Cola para procesamiento asíncrono
+- [ ] **WebSocket Notifications** - Progreso en tiempo real
+- [ ] **Retry Logic** - Reintentos automáticos en fallos
+- [ ] **Upload Progress UI** - Interfaz de progreso como Google Photos
+
+### 📋 Próximas Funcionalidades
 - [ ] Generación automática de thumbnails
 - [ ] Frontend para subida y visualización de archivos
 - [ ] Sistema de álbumes y etiquetas
 - [ ] Búsqueda avanzada por metadatos
+- [ ] Compartir archivos entre usuarios
 
 ## 🛡️ Seguridad y Permisos
 
@@ -175,7 +189,46 @@ Usuario Autenticado → Cognito Identity Pool → IAM Role → S3 Access
 - **Procesamiento**: Lambda asíncrono para no bloquear UX
 - **Búsqueda**: Índices optimizados para consultas complejas
 
+## 🚀 Sistema de Carga en Background
+
+### 🎯 Arquitectura de Upload (Como Google Photos)
+```
+Frontend (React) → API Gateway → Lambda Upload → S3 Multipart
+                                      ↓
+                                  SQS Queue
+                                      ↓
+                              Lambda Processor
+                                      ↓
+                              WebSocket/SSE
+                                      ↓
+                              Frontend Updates
+```
+
+### 📊 Flujo de Carga
+1. **Selección de Archivos**: Drag & drop o selector múltiple
+2. **Chunking**: División en partes de 5MB para upload paralelo
+3. **Multipart Upload**: Carga resiliente con retry automático
+4. **Background Processing**: Cola SQS para procesamiento asíncrono
+5. **AI Analysis**: Rekognition + metadatos EXIF automáticos
+6. **Real-time Updates**: Notificaciones WebSocket al frontend
+7. **Completion**: Archivos disponibles con thumbnails
+
+### 🔧 Componentes del Sistema
+- **API Gateway**: Endpoints para upload (initiate/chunk/complete)
+- **Lambda Upload**: Manejo de multipart uploads a S3
+- **SQS Queue**: Cola de procesamiento background
+- **Lambda Processor**: Análisis AI y generación de metadatos
+- **WebSocket API**: Notificaciones en tiempo real
+- **S3 Bucket**: Almacenamiento con estructura por usuario
+
+### 📱 Estados de Carga
+- ⏳ **Uploading**: Progreso de chunks con barra visual
+- 🔄 **Processing**: Análisis AI y extracción de metadatos
+- 📸 **Generating**: Creación de thumbnails automáticos
+- ✅ **Complete**: Archivo disponible en la galería
+
 ## 🔮 Roadmap Futuro
+
 
 ### Fase 2: Funcionalidades Avanzadas
 - [ ] Reconocimiento facial y agrupación de personas
