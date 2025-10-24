@@ -34,11 +34,14 @@ Estos perfiles pertenecen a **IBCOBROS** y están estrictamente prohibidos para 
 ### 🗂️ Organización Inteligente
 - **Estructura Jerárquica**: 
   ```
-  s3bucket/{user-id}/media/
-  ├── images/     # Fotografías e imágenes
-  ├── videos/     # Videos y contenido multimedia
-  ├── documents/  # Documentos y archivos
-  └── trash/      # Papelera (eliminación automática en 30 días)
+  s3bucket/{cognito-sub}/
+  ├── originals/{year}/{month}/     # Archivos originales organizados por fecha
+  ├── thumbnails/                   # Miniaturas en múltiples resoluciones
+  │   ├── small/                    # 150x150px
+  │   ├── medium/                   # 300x300px
+  │   └── large/                    # 800x800px
+  ├── compressed/                   # Versiones comprimidas
+  └── trash/                        # Papelera (eliminación automática en 30 días)
   ```
 
 ### 🤖 Inteligencia Artificial
@@ -62,9 +65,10 @@ Estos perfiles pertenecen a **IBCOBROS** y están estrictamente prohibidos para 
 ## 🏗️ Arquitectura Técnica
 
 ### ☁️ Infraestructura AWS
-- **S3**: Almacenamiento principal con versionado y lifecycle policies
+- **S3**: Almacenamiento principal con EventBridge notifications habilitadas
+- **EventBridge**: Orquestación de eventos para procesamiento escalable
 - **DynamoDB**: Base de datos NoSQL para metadatos con índices optimizados
-- **Lambda**: Procesamiento automático de archivos subidos
+- **Lambda**: Procesamiento automático de archivos via EventBridge
 - **Cognito**: Gestión de usuarios y autenticación
 - **API Gateway**: Endpoints REST para operaciones CRUD
 - **Rekognition**: Análisis de imágenes con IA
@@ -123,13 +127,15 @@ gildarck/
   - Ubicación GPS
 - [x] Esquema de metadatos completo como Google Photos
 
-### ✅ Sistema de Procesamiento Completado
-- [x] Lambda de procesamiento de medios con EventBridge
-- [x] Integración con AWS Rekognition para análisis AI
-- [x] Pipeline S3 → EventBridge → Lambda → DynamoDB
-- [x] Soporte para Cognito sub como UID único
-- [x] Metadatos completos estilo Google Photos
-- [x] Estructura: `{cognito-sub}/media/{category}/{filename}`
+### ✅ Sistema de Procesamiento EventBridge Completado
+- [x] **Arquitectura EventBridge**: S3 → EventBridge → Lambda → DynamoDB
+- [x] **Procesamiento Automático**: Trigger en Object Created events
+- [x] **Integración AI**: AWS Rekognition para análisis de imágenes
+- [x] **Identificación Única**: Cognito sub como UID inmutable
+- [x] **Metadatos Google Photos**: Estructura completa con organización temporal
+- [x] **Estructura de Archivos**: `{cognito-sub}/originals/{year}/{month}/{filename}`
+- [x] **Escalabilidad**: EventBridge permite procesamiento de alto volumen
+- [x] **Manejo de Errores**: Logging detallado y recuperación automática
 
 ### 🔄 Sistema de Carga en Background (En Desarrollo)
 - [ ] **Multipart Upload API** - Carga de archivos grandes en chunks
@@ -195,9 +201,11 @@ Usuario Autenticado → Cognito Identity Pool → IAM Role → S3 Access
 ```
 Frontend (React) → API Gateway → Lambda Upload → S3 Multipart
                                       ↓
-                                  SQS Queue
+                                  EventBridge
                                       ↓
                               Lambda Processor
+                                      ↓
+                              DynamoDB + Rekognition
                                       ↓
                               WebSocket/SSE
                                       ↓
@@ -208,15 +216,17 @@ Frontend (React) → API Gateway → Lambda Upload → S3 Multipart
 1. **Selección de Archivos**: Drag & drop o selector múltiple
 2. **Chunking**: División en partes de 5MB para upload paralelo
 3. **Multipart Upload**: Carga resiliente con retry automático
-4. **Background Processing**: Cola SQS para procesamiento asíncrono
-5. **AI Analysis**: Rekognition + metadatos EXIF automáticos
-6. **Real-time Updates**: Notificaciones WebSocket al frontend
-7. **Completion**: Archivos disponibles con thumbnails
+4. **EventBridge Trigger**: S3 envía evento a EventBridge automáticamente
+5. **Lambda Processing**: Procesamiento asíncrono via EventBridge
+6. **AI Analysis**: Rekognition + metadatos EXIF automáticos
+7. **DynamoDB Storage**: Almacenamiento de metadatos completos
+8. **Real-time Updates**: Notificaciones WebSocket al frontend
+9. **Completion**: Archivos disponibles con thumbnails
 
 ### 🔧 Componentes del Sistema
 - **API Gateway**: Endpoints para upload (initiate/chunk/complete)
 - **Lambda Upload**: Manejo de multipart uploads a S3
-- **SQS Queue**: Cola de procesamiento background
+- **EventBridge**: Orquestación de eventos de procesamiento
 - **Lambda Processor**: Análisis AI y generación de metadatos
 - **WebSocket API**: Notificaciones en tiempo real
 - **S3 Bucket**: Almacenamiento con estructura por usuario
