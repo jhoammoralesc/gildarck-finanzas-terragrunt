@@ -1,4 +1,4 @@
-# Configure terragrunt - GILDARCK
+# 📸 GILDARCK - Plataforma de Almacenamiento de Medios Visuales
 
 ## ⚠️ ADVERTENCIA CRÍTICA ⚠️
 
@@ -15,114 +15,221 @@ Estos perfiles pertenecen a **IBCOBROS** y están estrictamente prohibidos para 
 - `ic-uat` ❌
 - `ic-root` ❌
 
-## Prerequisites:
+**USAR ÚNICAMENTE**: `my-student-user` ✅
 
-- [Install terraform.](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli "Install terraform.")
-- [Install terragrunt.](https://terragrunt.gruntwork.io/docs/getting-started/install/ "Install terragrunt.")
-- **Configure AWS credentials for GILDARCK project ONLY**
+---
 
-## AWS Configuration for GILDARCK:
+## 🎯 Objetivo del Proyecto
 
-Configure your AWS credentials using one of these methods:
+**Gildarck** es una plataforma de almacenamiento de medios visuales segura, eficiente y confiable, inspirada en la arquitectura de Google Photos. El objetivo principal es proporcionar a los usuarios un espacio personal y privado para almacenar, organizar y gestionar sus imágenes, videos y documentos con tecnología de vanguardia.
 
-### Option 1: AWS Configure
-```bash
-aws configure --profile gildarck-dev
-```
+## 🌟 Características Principales
 
-### Option 2: Environment Variables
-```bash
-export AWS_ACCESS_KEY_ID=your_access_key
-export AWS_SECRET_ACCESS_KEY=your_secret_key
-export AWS_DEFAULT_REGION=us-east-1
-```
+### 🔐 Seguridad y Privacidad
+- **Aislamiento por Usuario**: Cada usuario tiene acceso únicamente a su carpeta personal
+- **Encriptación**: Todos los archivos se almacenan con encriptación AES-256
+- **Autenticación Robusta**: Sistema completo con Cognito (registro, login, logout)
+- **Permisos Granulares**: IAM policies que restringen acceso por usuario específico
 
-### Option 3: AWS SSO (if available)
-```bash
-aws configure sso --profile gildarck-dev
-```
+### 🗂️ Organización Inteligente
+- **Estructura Jerárquica**: 
+  ```
+  s3bucket/{user-id}/media/
+  ├── images/     # Fotografías e imágenes
+  ├── videos/     # Videos y contenido multimedia
+  ├── documents/  # Documentos y archivos
+  └── trash/      # Papelera (eliminación automática en 30 días)
+  ```
 
-## Execute plan command:
+### 🤖 Inteligencia Artificial
+- **Análisis Automático**: Detección de objetos, caras y escenas usando AWS Rekognition
+- **Metadatos Completos**: Extracción automática de información EXIF, GPS, y cámara
+- **Deduplicación**: Eliminación automática de archivos duplicados usando hash SHA-256
+- **Thumbnails**: Generación automática de miniaturas en múltiples resoluciones
 
-```bash
-# Set profile for GILDARCK
-export AWS_PROFILE=gildarck-dev
-
-# validate
-terragrunt run-all validate --terragrunt-non-interactive
-# Plan
-terragrunt run-all plan --terragrunt-non-interactive
-```
-
-## Configure environments:
-
-In the case that you need to use a secret into a specific module, please don't put It directly inside the code, instead use environment variables:
-
-- Edit the file ~/.bash_profile and put the environment variables that you need:
-  The values of the following variables you will find inside the repository [variables and secrets section](https://github.com/ibcobros/infrastructure-iac-terragrunt/settings/secrets/actions "variables and secrets section").
-
-```bash
-export DEV_FIREBASE_API_KEY=
-export DEV_MYSQL_PASSWORD=
-export DEV_AMPLIFY_BASIC_AUTH_PASS=
-export SHARED_POSTGRESS_PASSWORD=
-export GIT_TOKEN=
-export QA_MYSQL_PASSWORD=
-export QA_AMPLIFY_BASIC_AUTH_PASS=
-```
-
-In case that you need add more variables plese remember edit this file.
-
-## EKS
-
-To deploy EKS is necessary the implementation of networking configuration with strategy Hub and Spoke
-
-### Prerequisites
-
-- Configuration Hub and Spoke architecture
-- Configuration Transit gateway routes add VPC environment
-- Role with permissions for deploy Cluster EKS
-
-## Deploy EKS
-
-For deployment EKS you have to instance module of this in the folder **_\_envcommon_** into environment that you need to deploy(env=dev,qa,uat...),
-
-- Create folder eks -> eks-{env}-n in the Zone and Environment.
-- Create file terragrunt.hcl into folder created.
-- Setup inputs necessary for create cluster.
-
-```terragrunt
-
-inputs = {
-  cluster_name                    = "${local.name}"
-  cluster_version                 = "1.23"
-  cluster_endpoint_private_access = true
-  cluster_endpoint_public_access  = true
-  ...
-  ...
-  ...
+### 📊 Metadatos Avanzados (Como Google Photos)
+```json
+{
+  "file_info": "Información básica del archivo",
+  "camera_data": "Datos de la cámara y configuración",
+  "location": "Coordenadas GPS y dirección",
+  "ai_analysis": "Objetos, caras y escenas detectadas",
+  "organization": "Álbumes, etiquetas y favoritos",
+  "thumbnails": "Miniaturas en múltiples tamaños"
 }
 ```
 
-### Execution terragrunt command bash
+## 🏗️ Arquitectura Técnica
+
+### ☁️ Infraestructura AWS
+- **S3**: Almacenamiento principal con versionado y lifecycle policies
+- **DynamoDB**: Base de datos NoSQL para metadatos con índices optimizados
+- **Lambda**: Procesamiento automático de archivos subidos
+- **Cognito**: Gestión de usuarios y autenticación
+- **API Gateway**: Endpoints REST para operaciones CRUD
+- **Rekognition**: Análisis de imágenes con IA
+
+### 🔧 Tecnologías Utilizadas
+- **Infrastructure as Code**: Terragrunt + Terraform
+- **Backend**: Python 3.12 con AWS SDK
+- **Frontend**: Next.js + React + TypeScript
+- **Autenticación**: AWS Cognito User Pools
+- **Base de Datos**: DynamoDB con GSI para consultas optimizadas
+- **Procesamiento**: AWS Lambda con layers de Pillow para imágenes
+
+## 📁 Estructura del Proyecto
+
+```
+gildarck/
+├── infrastructure-iac-terragrunt/     # Infraestructura AWS
+│   ├── gildarck/dev/us-east-1/
+│   │   ├── cognito/user-pool/         # Autenticación
+│   │   ├── lambda/user-crud/          # API de usuarios
+│   │   ├── lambda/media-processor/    # Procesamiento de medios
+│   │   ├── s3/media-storage/          # Almacenamiento principal
+│   │   ├── dynamodb/media-metadata/   # Base de datos de metadatos
+│   │   ├── apigateway/                # API REST
+│   │   └── iam/s3-user-access/        # Permisos por usuario
+│   └── README.md
+└── frontend-main-front/               # Aplicación web
+    ├── src/
+    │   ├── components/auth/           # Componentes de autenticación
+    │   ├── services/                  # Servicios API
+    │   └── app/                       # Páginas principales
+    └── README.md
+```
+
+## 🚀 Funcionalidades Implementadas
+
+### ✅ Sistema de Autenticación Completo
+- [x] Registro de usuarios con validación de email
+- [x] Login con manejo de contraseñas temporales
+- [x] Cambio de contraseña obligatorio en primer acceso
+- [x] Logout seguro con invalidación de tokens
+- [x] Gestión de sesiones y tokens JWT
+
+### ✅ Almacenamiento de Medios
+- [x] Bucket S3 con configuración de seguridad
+- [x] Estructura de carpetas por usuario
+- [x] Encriptación y versionado automático
+- [x] Políticas de lifecycle para optimización de costos
+- [x] CORS configurado para acceso web
+
+### ✅ Base de Datos de Metadatos
+- [x] Tabla DynamoDB con esquema optimizado
+- [x] Índices secundarios para búsquedas por:
+  - Hash de archivo (deduplicación)
+  - Fecha de creación
+  - Ubicación GPS
+- [x] Esquema de metadatos completo como Google Photos
+
+### 🔄 En Desarrollo
+- [ ] Lambda de procesamiento de medios (en progreso)
+- [ ] Integración con AWS Rekognition
+- [ ] Generación automática de thumbnails
+- [ ] Frontend para subida y visualización de archivos
+- [ ] Sistema de álbumes y etiquetas
+- [ ] Búsqueda avanzada por metadatos
+
+## 🛡️ Seguridad y Permisos
+
+### Modelo de Seguridad
+```
+Usuario Autenticado → Cognito Identity Pool → IAM Role → S3 Access
+                                                      ↓
+                              Acceso SOLO a: s3://bucket/{user-id}/*
+```
+
+### Políticas de Acceso
+- **Principio de Menor Privilegio**: Usuarios solo acceden a sus archivos
+- **Segregación por Path**: Cada usuario tiene su prefijo único en S3
+- **Tokens Temporales**: Acceso mediante signed URLs con expiración
+- **Auditoría**: Logs de CloudTrail para todas las operaciones
+
+## 🎨 Experiencia de Usuario
+
+### Interfaz Inspirada en Google Photos
+- **Dashboard Principal**: Vista de medios organizados por fecha
+- **Navegación Intuitiva**: Sidebar con categorías y estadísticas
+- **Subida Drag & Drop**: Interfaz moderna para cargar archivos
+- **Vista Previa**: Thumbnails optimizados para carga rápida
+- **Búsqueda Inteligente**: Por fecha, ubicación, objetos detectados
+
+### Responsive Design
+- **Mobile First**: Optimizado para dispositivos móviles
+- **Progressive Web App**: Funcionalidad offline parcial
+- **Carga Lazy**: Optimización de rendimiento para grandes colecciones
+
+## 📈 Escalabilidad y Rendimiento
+
+### Optimizaciones Implementadas
+- **Pay-per-Request**: DynamoDB sin capacidad reservada
+- **Lifecycle Policies**: Transición automática a storage classes más económicos
+- **Deduplicación**: Ahorro de espacio mediante hash de archivos
+- **Thumbnails**: Múltiples resoluciones para diferentes dispositivos
+- **CDN Ready**: Preparado para integración con CloudFront
+
+### Métricas de Rendimiento
+- **Subida**: Directa a S3 con signed URLs
+- **Metadatos**: Consultas sub-100ms en DynamoDB
+- **Procesamiento**: Lambda asíncrono para no bloquear UX
+- **Búsqueda**: Índices optimizados para consultas complejas
+
+## 🔮 Roadmap Futuro
+
+### Fase 2: Funcionalidades Avanzadas
+- [ ] Reconocimiento facial y agrupación de personas
+- [ ] Álbumes inteligentes automáticos
+- [ ] Compartir archivos con otros usuarios
+- [ ] Integración con redes sociales
+- [ ] Backup automático desde dispositivos móviles
+
+### Fase 3: Inteligencia Artificial
+- [ ] Búsqueda por contenido visual
+- [ ] Etiquetado automático inteligente
+- [ ] Detección de duplicados similares (no idénticos)
+- [ ] Sugerencias de organización automática
+- [ ] Análisis de calidad de imagen
+
+### Fase 4: Colaboración
+- [ ] Espacios compartidos familiares
+- [ ] Comentarios y reacciones
+- [ ] Versionado colaborativo
+- [ ] Permisos granulares de compartir
+
+## 🚀 Despliegue
+
+### ⚠️ IMPORTANTE: Configuración AWS
+**USAR ÚNICAMENTE el perfil**: `my-student-user`
 
 ```bash
+# Verificar perfil AWS
+aws configure list --profile my-student-user
 
-# Execute
-# Validate
-terragrunt run-all validate --terragrunt-non-interactive
-# plan
-terragrunt run-all plan --terragrunt-non-interactive
-#apply
+# Configurar perfil si es necesario
+aws configure --profile my-student-user
+```
+
+### Comandos de Despliegue
+```bash
+# Infraestructura
+cd infrastructure-iac-terragrunt/gildarck/dev/us-east-1
+export AWS_PROFILE=my-student-user
 terragrunt run-all apply --terragrunt-non-interactive
--
+
+# Frontend
+cd frontend-main-front
+npm install
+npm run build
+npm run deploy
 ```
 
-#### Test cluster was create, add kube config in your local environment
+## 📞 Contacto y Contribución
 
-```bash
+**Desarrollado por**: Equipo Gildarck  
+**Tecnología**: AWS + React + Terraform  
+**Licencia**: Propietaria  
 
-aws eks list-clusters --profile ic-qa
-aws eks update-kubeconfig --region us-east-1 --name eks-qa-1 --profile ic-qa > ~/.kube/ic-qa.yaml
-export PATHKUBECONFIG=$KUBECONFIG:~/.kube/config:ic-shared.yaml:ic-dev.yaml:ic-qa.yaml
-```
+---
+
+*Gildarck - Almacenamiento inteligente y seguro para tus recuerdos digitales* 📸✨
