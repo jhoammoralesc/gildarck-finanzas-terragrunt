@@ -47,7 +47,7 @@ inputs = {
     sampled_requests_enabled   = false
   }
 
-  default_action = "allow"
+  default_action = "block"
 
   scope = "CLOUDFRONT"
 
@@ -387,26 +387,26 @@ inputs = {
     }
   ]
 
-  // ip_set_reference_statement_rules = [
-  //   {
-  //     name     = "rule-110"
-  //     priority = 110
-  //     action   = "count"
+  ip_set_reference_statement_rules = [
+    {
+      name     = "rule-0-ip-whitelist"
+      priority = 0
+      action   = "allow"
 
-  //     statement = {
-  //       ip_set = {
-  //         ip_address_version = "IPV4"
-  //         addresses          = ["17.0.0.0/8"]
-  //       }
-  //     }
+      statement = {
+        ip_set = {
+          ip_address_version = "IPV4"
+          addresses          = ["181.78.80.15/32"]
+        }
+      }
 
-  //     visibility_config = {
-  //       cloudwatch_metrics_enabled = false
-  //       sampled_requests_enabled   = false
-  //       metric_name                = "rule-110-metric"
-  //     }
-  //   }
-  // ]
+      visibility_config = {
+        cloudwatch_metrics_enabled = true
+        sampled_requests_enabled   = true
+        metric_name                = "rule-0-ip-whitelist-metric"
+      }
+    }
+  ]
 
   tags = local.tags
 }

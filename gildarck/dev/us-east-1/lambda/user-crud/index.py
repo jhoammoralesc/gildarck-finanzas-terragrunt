@@ -4,15 +4,77 @@ import os
 import hmac
 import hashlib
 import base64
+import string
+import secrets
 from botocore.exceptions import ClientError
 
 # Initialize clients
 cognito_client = boto3.client('cognito-idp', region_name=os.environ['REGION'])
 s3_client = boto3.client('s3', region_name=os.environ['REGION'])
+ses_client = boto3.client('ses', region_name=os.environ['REGION'])
 
 USER_POOL_ID = os.environ['USER_POOL_ID']
 CLIENT_ID = os.environ['CLIENT_ID']
 CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
+
+def send_welcome_email(email, name, temp_password):
+    """Send custom welcome email with original name"""
+    subject = "¡Bienvenido a GILDARCK! 📸"
+    
+    html_body = f"""<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Bienvenido a GILDARCK</title>
+    <style>
+      body {{ font-family: "Segoe UI", sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }}
+      .container {{ max-width: 500px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 30px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }}
+      h1 {{ font-size: 24px; color: #2d3748; margin: 0 0 8px 0; }}
+      .subtitle {{ font-size: 16px; color: #667eea; margin-bottom: 20px; font-weight: 600; }}
+      p {{ font-size: 14px; color: #4a5568; line-height: 1.5; margin: 0 0 15px 0; }}
+      .code {{ font-size: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 15px; border-radius: 8px; margin: 20px 0; letter-spacing: 3px; font-weight: bold; }}
+      .button {{ display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 15px 0; }}
+      .footer {{ margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #718096; }}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>¡Hola {name}! 👋</h1>
+      <div class="subtitle">Bienvenido a GILDARCK</div>
+      <p>Tu cuenta personal en GILDARCK está lista. Ahora tienes tu propio espacio seguro para almacenar y organizar todos tus recuerdos digitales.</p>
+      <div class="code">{temp_password}</div>
+      <p>Usa este código temporal para completar tu registro.</p>
+      <a href="https://dev.gildarck.com/auth/login" class="button">🔐 Acceder a GILDARCK</a>
+      <div class="footer">
+        <p>GILDARCK - Tu almacenamiento inteligente y seguro</p>
+      </div>
+    </div>
+  </body>
+</html>"""
+    
+    try:
+        ses_client.send_email(
+            Source='no-reply@dev.gildarck.com',
+            Destination={'ToAddresses': [email]},
+            Message={
+                'Subject': {'Data': subject},
+                'Body': {'Html': {'Data': html_body}}
+            }
+        )
+        print(f"Email sent successfully to {email}")
+    except Exception as e:
+        print(f"Error sending email: {e}")
+
+def generate_temp_password():
+    """Generate secure temporary password that meets Cognito policy"""
+    # Ensure we have uppercase, lowercase, and numbers
+    password = (
+        secrets.choice(string.ascii_uppercase) +  # At least 1 uppercase
+        secrets.choice(string.ascii_lowercase) +  # At least 1 lowercase  
+        secrets.choice(string.digits) +          # At least 1 number
+        ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(5))  # 5 more chars
+    )
+    return password
 CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*')
 S3_BUCKET = os.environ.get('S3_BUCKET', 'gildarck-media-dev')
 
@@ -179,7 +241,7 @@ def login_user(event):
                     'user': {
                         'id': user_attributes.get('sub'),
                         'email': user_attributes.get('email'),
-                        'name': user_attributes.get('name', '')
+                        'name': user_attributes.get('preferred_username', '')
                     }
                 }
             })
@@ -205,23 +267,47 @@ def register_user(event):
         email = body['email']
         name = body.get('name', '')
         
-        # Generate a unique username since email alias is configured
-        import uuid
-        username = str(uuid.uuid4())
+        # Use the real name as username so it appears in email templates
+        # Clean name for Cognito username requirements (no spaces, special chars)
+        if name:
+            username = name.replace(' ', '').replace('-', '').replace('.', '')
+        else:
+            username = email.split('@')[0]
         
         # Use admin_create_user to create user with temporary password
+        temp_password = generate_temp_password()
         response = cognito_client.admin_create_user(
             UserPoolId=USER_POOL_ID,
             Username=username,
             UserAttributes=[
                 {'Name': 'email', 'Value': email},
                 {'Name': 'email_verified', 'Value': 'true'},
-                {'Name': 'name', 'Value': name}
-            ]
+                {'Name': 'name', 'Value': name or email.split('@')[0]},
+                {'Name': 'preferred_username', 'Value': name or email.split('@')[0]}
+            ],
+            TemporaryPassword=temp_password,
+            MessageAction='SUPPRESS'  # Suppress Cognito email, we'll send custom
         )
         
-        # Get the Cognito sub (unique identifier)
-        cognito_sub = response['User']['Username']
+        # Send custom welcome email with original name
+        send_welcome_email(email, name or email.split('@')[0], temp_password)
+        
+        # Get the actual Cognito sub (UUID) from user attributes
+        # We need to get the user details to access the sub attribute
+        user_details = cognito_client.admin_get_user(
+            UserPoolId=USER_POOL_ID,
+            Username=username
+        )
+        
+        # Extract the sub from user attributes
+        cognito_sub = None
+        for attr in user_details['UserAttributes']:
+            if attr['Name'] == 'sub':
+                cognito_sub = attr['Value']
+                break
+        
+        if not cognito_sub:
+            raise Exception("Could not retrieve user sub from Cognito")
         
         # Create S3 folder structure for the user
         try:
@@ -327,7 +413,7 @@ def set_new_password(event):
                     'user': {
                         'id': user_attributes.get('sub'),
                         'email': user_attributes.get('email'),
-                        'name': user_attributes.get('name', '')
+                        'name': user_attributes.get('preferred_username', '')
                     }
                 }
             })
@@ -384,7 +470,7 @@ def create_user(event):
             UserAttributes=[
                 {'Name': 'email', 'Value': email},
                 {'Name': 'email_verified', 'Value': 'true'},
-                {'Name': 'name', 'Value': name}
+                {'Name': 'preferred_username', 'Value': name}
             ],
             TemporaryPassword=password,
             MessageAction='SUPPRESS'
@@ -462,7 +548,7 @@ def update_user(user_id, event):
         if 'email' in body:
             user_attributes.append({'Name': 'email', 'Value': body['email']})
         if 'name' in body:
-            user_attributes.append({'Name': 'name', 'Value': body['name']})
+            user_attributes.append({'Name': 'preferred_username', 'Value': body['name']})
         
         if user_attributes:
             cognito_client.admin_update_user_attributes(

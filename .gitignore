@@ -1,24 +1,26 @@
-error.log
+# Lambda Dependencies - Heavy Files
+**/lambda-pillow-*.zip
+**/pillow-layer.zip
+**/PIL/
+**/Pillow.libs/
+**/python/
 
-# Terraform
-.terraform
-*.tfstate
-*.tfstate.backup
+# Terraform & Terragrunt
+**/.terraform/
+**/.terraform.lock.hcl
+**/.terragrunt-cache/
+**/terraform.tfstate*
 
-# Terragrunt
-.terragrunt-cache
+# Test Files
+test-*.sh
+/tmp/
 
-# OS X
-.history
+# macOS
 .DS_Store
 
-# IntelliJ
-.idea_modules
-*.iml
-*.iws
-*.ipr
+# IDE
+.vscode/
 .idea/
-build/
-*/build/
-out/
-cost*
+
+# Logs
+*.log

@@ -49,14 +49,14 @@ inputs = {
     ParameterStore = {
       effect    = "Allow",
       actions   = ["ssm:GetParameter", "ssm:PutParameter"],
-      resources = ["arn:aws:ssm:${local.tags.region}:${local.aws_account_id}:parameter/gildarck-jwt-secret"]
+      resources = ["arn:aws:ssm:us-east-1:${local.aws_account_id}:parameter/gildarck-jwt-secret"]
     }
   }
 
   allowed_triggers = {
     APIGatewayAny = {
       service  = "apigateway"
-      resource = "arn:aws:lambda:${local.tags.region}:${local.aws_account_id}:function:${local.name}"
+      resource = "arn:aws:lambda:us-east-1:${local.aws_account_id}:function:${local.name}"
     }
   }
 

@@ -13,29 +13,29 @@ include "envcommon" {
 
 locals {
   vars         = read_terragrunt_config(find_in_parent_folders("env.hcl")).locals
-  name         = "gildarck-user-crud"
+  name         = "gildarck-upload-handler"
   service_vars = read_terragrunt_config(find_in_parent_folders("service.hcl"))
   tags         = merge(local.service_vars.locals.tags, { name = local.name })
 }
 
 dependencies {
   paths = [
-    "../../cognito/gildarck-user-pool",
-    "../../s3/media-storage"
+    "../../s3/media-storage",
+    "../../sqs/media-processing-queue"
   ]
-}
-
-dependency "cognito" {
-  config_path = "../../cognito/gildarck-user-pool"
 }
 
 dependency "s3_media" {
   config_path = "../../s3/media-storage"
 }
 
+dependency "sqs_queue" {
+  config_path = "../../sqs/media-processing-queue"
+}
+
 inputs = {
   function_name  = "${local.name}"
-  description    = "Lambda function for user CRUD operations"
+  description    = "Handles multipart file uploads to S3 with chunking support"
   handler        = "index.lambda_handler"
   runtime        = "python3.12"
   architectures  = ["arm64"]
@@ -48,36 +48,27 @@ inputs = {
   
   attach_policy_statements = true
   policy_statements = {
-    cognito = {
-      effect = "Allow"
-      actions = [
-        "cognito-idp:AdminCreateUser",
-        "cognito-idp:AdminDeleteUser", 
-        "cognito-idp:AdminGetUser",
-        "cognito-idp:AdminUpdateUserAttributes",
-        "cognito-idp:ListUsers",
-        "cognito-idp:AdminSetUserPassword",
-        "cognito-idp:AdminConfirmSignUp",
-        "cognito-idp:InitiateAuth",
-        "cognito-idp:SignUp",
-        "cognito-idp:ChangePassword"
-      ]
-      resources = [dependency.cognito.outputs.user_pool.arn]
-    }
     s3_access = {
       effect = "Allow"
       actions = [
-        "s3:PutObject"
+        "s3:CreateMultipartUpload",
+        "s3:CompleteMultipartUpload",
+        "s3:AbortMultipartUpload",
+        "s3:ListMultipartUploadParts",
+        "s3:PutObject",
+        "s3:GetObject"
       ]
-      resources = ["${dependency.s3_media.outputs.s3_bucket_arn}/*"]
+      resources = [
+        dependency.s3_media.outputs.s3_bucket_arn,
+        "${dependency.s3_media.outputs.s3_bucket_arn}/*"
+      ]
     }
-    ses = {
+    sqs_access = {
       effect = "Allow"
       actions = [
-        "ses:SendEmail",
-        "ses:SendRawEmail"
+        "sqs:SendMessage"
       ]
-      resources = ["*"]
+      resources = [dependency.sqs_queue.outputs.queue_arn]
     }
   }
   
@@ -89,11 +80,10 @@ inputs = {
   }
   
   environment_variables = {
-    USER_POOL_ID = dependency.cognito.outputs.user_pool.id
-    CLIENT_ID    = dependency.cognito.outputs.clients["gildarck-web-app"].id
-    REGION       = "us-east-1"
-    CORS_ORIGINS = "https://dev.gildarck.com"
-    S3_BUCKET    = dependency.s3_media.outputs.s3_bucket_id
+    S3_BUCKET     = dependency.s3_media.outputs.s3_bucket_id
+    SQS_QUEUE_URL = dependency.sqs_queue.outputs.queue_url
+    REGION        = "us-east-1"
+    CORS_ORIGINS  = "https://dev.gildarck.com"
   }
 
   tags = local.tags

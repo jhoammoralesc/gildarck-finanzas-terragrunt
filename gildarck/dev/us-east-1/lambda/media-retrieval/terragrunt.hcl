@@ -13,19 +13,19 @@ include "envcommon" {
 
 locals {
   vars         = read_terragrunt_config(find_in_parent_folders("env.hcl")).locals
-  name         = "gildarck-media-processor"
-  service_vars = read_terragrunt_config(find_in_parent_folders("service.hcl"))
+  name         = "gildarck-media-retrieval"
+  service_vars = read_terragrunt_config("service.hcl")
   tags         = merge(local.service_vars.locals.tags, { name = local.name })
 }
 
 inputs = {
   function_name  = "${local.name}"
-  description    = "Lambda function for media processing with AI analysis"
+  description    = "Lambda function for media retrieval and thumbnail serving"
   handler        = "index.lambda_handler"
   runtime        = "python3.12"
   architectures  = ["arm64"]
-  timeout        = 300
-  memory_size    = 1024
+  timeout        = 30
+  memory_size    = 256
   create_package = false
   publish        = true
 
@@ -33,20 +33,10 @@ inputs = {
   
   attach_policy_statements = true
   policy_statements = {
-    s3_access = {
-      effect = "Allow"
-      actions = [
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:CopyObject",
-        "s3:DeleteObject"
-      ]
-      resources = ["arn:aws:s3:::gildarck-media-dev/*"]
-    }
     dynamodb_access = {
       effect = "Allow"
       actions = [
-        "dynamodb:PutItem",
+        "dynamodb:GetItem",
         "dynamodb:Query"
       ]
       resources = [
@@ -54,33 +44,18 @@ inputs = {
         "arn:aws:dynamodb:us-east-1:496860676881:table/gildarck-media-metadata-dev/index/*"
       ]
     }
-    rekognition_access = {
+    s3_access = {
       effect = "Allow"
       actions = [
-        "rekognition:DetectFaces",
-        "rekognition:DetectLabels"
+        "s3:GetObject"
       ]
-      resources = ["*"]
-    }
-    sqs_access = {
-      effect = "Allow"
-      actions = [
-        "sqs:SendMessage"
-      ]
-      resources = ["arn:aws:sqs:us-east-1:496860676881:gildarck-thumbnail-queue"]
-    }
-  }
-  
-  allowed_triggers = {
-    S3EventNotification = {
-      service  = "events"
-      resource = "*"
+      resources = ["arn:aws:s3:::gildarck-media-dev/*"]
     }
   }
   
   environment_variables = {
-    S3_BUCKET      = "gildarck-media-dev"
     DYNAMODB_TABLE = "gildarck-media-metadata-dev"
+    S3_BUCKET      = "gildarck-media-dev"
     REGION         = "us-east-1"
   }
 

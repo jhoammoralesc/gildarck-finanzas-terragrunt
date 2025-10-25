@@ -7,7 +7,7 @@
     <style>
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: #f8fafc;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         margin: 0;
         padding: 0;
       }
@@ -15,8 +15,8 @@
         max-width: 600px;
         margin: 30px auto;
         background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         padding: 40px;
         text-align: center;
       }
@@ -26,13 +26,14 @@
       }
       h1 {
         font-size: 28px;
-        color: #1a202c;
+        color: #2d3748;
         margin-bottom: 10px;
       }
       .subtitle {
         font-size: 18px;
-        color: #4a5568;
+        color: #667eea;
         margin-bottom: 30px;
+        font-weight: 600;
       }
       p {
         font-size: 16px;
@@ -42,25 +43,25 @@
       }
       .code {
         font-size: 24px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #667eea, #764ba2);
         color: #fff;
         padding: 20px;
-        border-radius: 10px;
+        border-radius: 12px;
         margin: 30px 0;
-        letter-spacing: 2px;
+        letter-spacing: 4px;
         font-weight: bold;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        font-family: 'Courier New', monospace;
       }
       .button {
         display: inline-block;
-        padding: 15px 30px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 16px 32px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
         color: white;
-        border-radius: 8px;
+        border-radius: 12px;
         text-decoration: none;
         font-weight: bold;
-        margin-top: 20px;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        font-size: 16px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         transition: transform 0.2s;
       }
       .button:hover {
@@ -77,23 +78,23 @@
   </head>
   <body>
     <div class="container">
-      <h1>¡Bienvenido a GILDARCK! 🚀</h1>
-      <p class="subtitle">Hola <strong>{username}</strong></p>
-      
-      <p>Tu cuenta ha sido creada exitosamente en la plataforma GILDARCK.</p>
-      <p>Para completar la configuración de tu cuenta, utiliza la siguiente contraseña temporal:</p>
+      <h1>¡Hola {username}! 👋</h1>
+      <div class="subtitle">Bienvenido a GILDARCK</div>
+      <p>Tu plataforma personal de almacenamiento de medios visuales está lista.</p>
+      <p>Organiza, protege y accede a tus fotos y videos desde cualquier lugar con la seguridad y tecnología de AWS.</p>
       
       <div class="code">{####}</div>
       
-      <p><strong>Importante:</strong> Deberás cambiar esta contraseña en tu primer inicio de sesión por seguridad.</p>
+      <p>Usa este código temporal para completar tu registro y establecer tu contraseña personal.</p>
       
-      <a href="https://dev.gildarck.com" class="button">
+      <a href="https://dev.gildarck.com/auth/login" class="button">
         🔐 Acceder a GILDARCK
       </a>
       
       <div class="footer">
-        <p>Si no solicitaste esta cuenta, puedes ignorar este mensaje.</p>
-        <p>© 2024 GILDARCK. Todos los derechos reservados.</p>
+        <p>GILDARCK - Tu almacenamiento inteligente y seguro</p>
+        <p>Powered by AWS | Protegido con encriptación AES-256</p>
+        <!-- Username requerido por Cognito: {username} -->
       </div>
     </div>
   </body>

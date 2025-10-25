@@ -73,7 +73,8 @@ locals {
 dependencies {
   paths = [
     "../../lambda/function-authorizer",
-    "../../lambda/user-crud"
+    "../../lambda/user-crud",
+    "../../lambda/upload-handler"
   ]
 }
 
@@ -83,6 +84,14 @@ dependency "authorizer" {
 
 dependency "user_crud" {
   config_path = "../../lambda/user-crud"
+}
+
+dependency "upload_handler" {
+  config_path = "../../lambda/upload-handler"
+}
+
+dependency "media_retrieval" {
+  config_path = "../../lambda/media-retrieval"
 }
 
 inputs = {
@@ -442,76 +451,86 @@ inputs = {
         options = local.options
       }
 
-      "/photos" = {
-        get = {
-          security = [{ FirebaseJWTAuthorizer = [] }]
-          x-amazon-apigateway-integration = {
-            type = "MOCK"
-            requestTemplates = { "application/json" = "{\"statusCode\": 200}" }
-            responses = {
-              200 = {
-                statusCode = 200
-                responseTemplates = { "application/json" = "{\"message\": \"List photos - MOCK endpoint\", \"photos\": []}" }
-                responseParameters = local.responseParameters
-              }
-            }
-            passthroughBehavior = "WHEN_NO_MATCH"
-          }
-          responses = local.responses
-        }
-        
+      # Upload endpoints - Authenticated
+      "/upload/initiate" = {
         post = {
           security = [{ FirebaseJWTAuthorizer = [] }]
           x-amazon-apigateway-integration = {
-            type = "MOCK"
-            requestTemplates = { "application/json" = "{\"statusCode\": 201}" }
-            responses = {
-              201 = {
-                statusCode = 201
-                responseTemplates = { "application/json" = "{\"message\": \"Photo uploaded - MOCK endpoint\", \"id\": \"mock-photo-123\"}" }
-                responseParameters = local.responseParameters
-              }
-            }
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.upload_handler.outputs.lambda_function_invoke_arn
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
         }
-        
+        options = local.options
+      }
+
+      "/upload/complete" = {
+        post = {
+          security = [{ FirebaseJWTAuthorizer = [] }]
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.upload_handler.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+        }
+        options = local.options
+      }
+
+      "/upload/presigned" = {
+        get = {
+          security = [{ FirebaseJWTAuthorizer = [] }]
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "GET"
+            uri = dependency.upload_handler.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+        }
+        options = local.options
+      }
+
+      "/media/list" = {
+        get = {
+          security = [{ FirebaseJWTAuthorizer = [] }]
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.media_retrieval.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+        }
         options = local.options
       }
       
-      "/photos/{id}" = {
+      "/media/thumbnail/{file_id}" = {
         get = {
           security = [{ FirebaseJWTAuthorizer = [] }]
-          parameters = [{ name = "id", in = "path", required = true, type = "string" }]
+          parameters = [{ name = "file_id", in = "path", required = true, type = "string" }]
           x-amazon-apigateway-integration = {
-            type = "MOCK"
-            requestTemplates = { "application/json" = "{\"statusCode\": 200}" }
-            responses = {
-              200 = {
-                statusCode = 200
-                responseTemplates = { "application/json" = "{\"message\": \"Get photo by ID - MOCK endpoint\", \"id\": \"$input.params('id')\"}" }
-                responseParameters = local.responseParameters
-              }
-            }
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.media_retrieval.outputs.lambda_function_invoke_arn
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
         }
-        
-        delete = {
+        options = local.options
+      }
+
+      "/media/file/{file_id}" = {
+        get = {
           security = [{ FirebaseJWTAuthorizer = [] }]
-          parameters = [{ name = "id", in = "path", required = true, type = "string" }]
+          parameters = [{ name = "file_id", in = "path", required = true, type = "string" }]
           x-amazon-apigateway-integration = {
-            type = "MOCK"
-            requestTemplates = { "application/json" = "{\"statusCode\": 200}" }
-            responses = {
-              200 = {
-                statusCode = 200
-                responseTemplates = { "application/json" = "{\"message\": \"Photo deleted - MOCK endpoint\", \"id\": \"$input.params('id')\"}" }
-                responseParameters = local.responseParameters
-              }
-            }
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.media_retrieval.outputs.lambda_function_invoke_arn
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -528,6 +547,20 @@ inputs = {
       statement_id  = "AllowExecutionFromAPIGateway"
       action        = "lambda:InvokeFunction"
       function_name = dependency.user_crud.outputs.lambda_function_name
+      principal     = "apigateway.amazonaws.com"
+      source_arn    = "arn:aws:execute-api:us-east-1:*:*/*/*"
+    }
+    upload_handler = {
+      statement_id  = "AllowExecutionFromAPIGateway"
+      action        = "lambda:InvokeFunction"
+      function_name = dependency.upload_handler.outputs.lambda_function_name
+      principal     = "apigateway.amazonaws.com"
+      source_arn    = "arn:aws:execute-api:us-east-1:*:*/*/*"
+    }
+    media_retrieval = {
+      statement_id  = "AllowExecutionFromAPIGateway"
+      action        = "lambda:InvokeFunction"
+      function_name = dependency.media_retrieval.outputs.lambda_function_name
       principal     = "apigateway.amazonaws.com"
       source_arn    = "arn:aws:execute-api:us-east-1:*:*/*/*"
     }

@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------------------------------------------------------
 # TERRAGRUNT CONFIGURATION - GILDARCK USER POOL
-# Simplified Cognito configuration for GILDARCK project
+# Updated to use SES for professional email templates
 # ---------------------------------------------------------------------------------------------------------------------
 
 terraform {
@@ -30,8 +30,19 @@ locals {
   tags             = merge(local.service_vars.locals.tags, { name = local.name })
 }
 
+# SES dependency
+dependencies {
+  paths = [
+    "../../ses/dev.gildarck.com"
+  ]
+}
+
+dependency "ses" {
+  config_path = "../../ses/dev.gildarck.com"
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
-# SIMPLIFIED COGNITO CONFIGURATION FOR GILDARCK
+# COGNITO CONFIGURATION WITH SES INTEGRATION
 # ---------------------------------------------------------------------------------------------------------------------
 
 inputs = {
@@ -92,9 +103,11 @@ inputs = {
       read_attributes = [
         "email", 
         "email_verified", 
+        "name",
         "preferred_username",
         "custom:role",
-        "custom:company"
+        "custom:company",
+        "custom:display_name"
       ]
       allowed_oauth_scopes = [
         "aws.cognito.signin.user.admin",
@@ -130,15 +143,24 @@ inputs = {
       required   = false
       min_length = 1
       max_length = 100
+    },
+    {
+      name       = "display_name"
+      type       = "String"
+      required   = false
+      min_length = 1
+      max_length = 100
     }
   ]
 
-  # Email configuration - using Cognito default email
-  invite_email_subject  = "Bienvenido a GILDARCK"
-  email_subject         = "Recuperar contraseña - GILDARCK"
+  # SES Email configuration - UPDATED TO USE SES
+  invite_email_subject  = "¡Bienvenido a GILDARCK! 📸"
+  email_subject         = "Recuperar contraseña - GILDARCK 🔒"
   invite_email_message  = local.invitation_email
   email_message         = local.recovery_email
-  email_sending_account = "COGNITO_DEFAULT"
+  email_sending_account = "DEVELOPER"
+  email_source_arn      = dependency.ses.outputs.ses_domain_identity_arn
+  email_from_address    = "no-reply@dev.gildarck.com"
 
   tags = local.tags
 }

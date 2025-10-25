@@ -38,16 +38,16 @@ locals {
 
 dependencies {
   paths = [
-    # "../../waf/waf-fronted",
+    "../../waf/waf-fronted",
     "../../amplify/${local.vars.ENV}.gildarck.com",
     "../../acm/${local.vars.ENV}.gildarck.com"
   ]
 }
 
-# dependency "waf" {
-#   config_path = "../../waf/waf-fronted"
-#   #skip_outputs = true
-# }
+dependency "waf" {
+  config_path = "../../waf/waf-fronted"
+  #skip_outputs = true
+}
 
 dependency "amplify" {
   config_path = "../../amplify/${local.vars.ENV}.gildarck.com"
