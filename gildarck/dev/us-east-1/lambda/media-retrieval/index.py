@@ -102,28 +102,47 @@ def list_media_chronological(user_id, params):
             params = {}
         
         limit = int(params.get('limit', 50))
+        offset = int(params.get('offset', 0))
         
-        # Query all user media and sort by upload_date
+        # Query all user media
         response = table.query(
-            KeyConditionExpression=Key('user_id').eq(user_id),
-            Limit=limit * 2  # Get more to ensure we have enough after sorting
+            KeyConditionExpression=Key('user_id').eq(user_id)
         )
         
         items = response.get('Items', [])
         
-        # Sort chronologically (newest first) by upload_date
-        sorted_items = sorted(
-            items, 
-            key=lambda x: x.get('upload_date', ''), 
-            reverse=True
-        )[:limit]
+        # Sort chronologically (newest first) by EXIF date or upload_date
+        def get_sort_date(item):
+            file_info = item.get('file_info', {})
+            if file_info.get('year') and file_info.get('month'):
+                return f"{file_info['year']}-{str(file_info['month']).zfill(2)}-01"
+            return item.get('upload_date', '1970-01-01')
+        
+        sorted_items = sorted(items, key=get_sort_date, reverse=True)
+        
+        # Apply pagination
+        total_count = len(sorted_items)
+        paginated_items = sorted_items[offset:offset + limit]
         
         # Format for frontend consumption (Google Photos style)
         formatted_items = []
-        for item in sorted_items:
+        for item in paginated_items:
             # Safely get ai_analysis data
             ai_analysis = item.get('ai_analysis') or {}
             labels = ai_analysis.get('labels') or []
+            
+            # Generate presigned URL for thumbnail
+            thumbnail_url = None
+            thumbnail_paths = item.get('thumbnails', {})
+            if thumbnail_paths.get('medium'):
+                try:
+                    thumbnail_url = s3.generate_presigned_url(
+                        'get_object',
+                        Params={'Bucket': 'gildarck-media-dev', 'Key': thumbnail_paths['medium']},
+                        ExpiresIn=3600
+                    )
+                except Exception as e:
+                    print(f"Error generating presigned URL for {item.get('file_id')}: {str(e)}")
             
             formatted_item = {
                 'file_id': item.get('file_id'),
@@ -131,7 +150,8 @@ def list_media_chronological(user_id, params):
                 'original_filename': item.get('original_filename'),
                 'content_type': item.get('content_type'),
                 'file_size': item.get('file_size'),
-                'thumbnails': item.get('thumbnails', {}),
+                'thumbnails': thumbnail_paths,
+                'thumbnail_url': thumbnail_url,  # Ready-to-use presigned URL
                 'ai_analysis': {
                     'labels': [label.get('name') for label in labels if label and isinstance(label, dict)],
                     'faces_count': ai_analysis.get('faces_count', 0)
@@ -148,8 +168,11 @@ def list_media_chronological(user_id, params):
             'body': json.dumps({
                 'items': formatted_items,
                 'count': len(formatted_items),
-                'total_available': len(items),
-                'sorted_by': 'upload_date_desc'
+                'total_count': total_count,
+                'offset': offset,
+                'limit': limit,
+                'has_more': offset + limit < total_count,
+                'sorted_by': 'chronological_desc'
             }, cls=DecimalEncoder)
         }
     except Exception as e:
