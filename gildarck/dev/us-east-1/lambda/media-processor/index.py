@@ -5,6 +5,7 @@ import uuid
 from datetime import datetime
 from urllib.parse import unquote_plus
 from decimal import Decimal
+import re
 
 s3 = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
@@ -13,6 +14,56 @@ sqs = boto3.client('sqs')
 
 # Environment variables
 SQS_QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/496860676881/gildarck-thumbnail-queue'
+
+def extract_exif_date(bucket, key):
+    """Extract date from EXIF data using basic parsing"""
+    try:
+        # Get object metadata first
+        response = s3.head_object(Bucket=bucket, Key=key)
+        
+        # Check if we can get creation date from S3 metadata
+        if 'Metadata' in response:
+            metadata = response['Metadata']
+            if 'creation-date' in metadata:
+                return datetime.fromisoformat(metadata['creation-date'])
+        
+        # For now, try to extract date from filename patterns
+        filename = key.split('/')[-1]
+        
+        # Common date patterns in filenames
+        date_patterns = [
+            r'(\d{4})-(\d{2})-(\d{2})',  # YYYY-MM-DD
+            r'(\d{4})(\d{2})(\d{2})',    # YYYYMMDD
+            r'IMG-(\d{4})(\d{2})(\d{2})', # IMG-YYYYMMDD
+            r'(\d{2})-(\d{2})-(\d{4})',  # MM-DD-YYYY
+        ]
+        
+        for pattern in date_patterns:
+            match = re.search(pattern, filename)
+            if match:
+                groups = match.groups()
+                if len(groups) == 3:
+                    try:
+                        # Handle different date formats
+                        if len(groups[0]) == 4:  # YYYY first
+                            year, month, day = int(groups[0]), int(groups[1]), int(groups[2])
+                        else:  # MM-DD-YYYY format
+                            month, day, year = int(groups[0]), int(groups[1]), int(groups[2])
+                        
+                        # Validate date ranges
+                        if 1900 <= year <= 2030 and 1 <= month <= 12 and 1 <= day <= 31:
+                            extracted_date = datetime(year, month, day)
+                            print(f"Extracted date from filename: {extracted_date}")
+                            return extracted_date
+                    except ValueError:
+                        continue
+        
+        print("No valid date found in filename or metadata")
+        return None
+        
+    except Exception as e:
+        print(f"Error extracting EXIF date: {str(e)}")
+        return None
 
 def lambda_handler(event, context):
     try:
@@ -55,11 +106,19 @@ def process_temp_file(bucket, temp_key):
     file_obj = s3.get_object(Bucket=bucket, Key=temp_key)
     file_content = file_obj['Body'].read()
     
-    # For now, use current date (TODO: implement EXIF extraction)
-    actual_date = datetime.now()
+    # Try to extract EXIF date
+    actual_date = extract_exif_date(bucket, temp_key)
     
-    year = actual_date.year
-    month = f"{actual_date.month:02d}"
+    # Use EXIF date if available, otherwise use current date
+    if actual_date:
+        year = actual_date.year
+        month = f"{actual_date.month:02d}"
+        print(f"Using EXIF date: {year}-{month} from {actual_date}")
+    else:
+        actual_date = datetime.now()
+        year = actual_date.year
+        month = f"{actual_date.month:02d}"
+        print(f"No EXIF date found, using current date: {year}-{month}")
     
     # Create final organized path
     final_key = f"{user_id}/originals/{year}/{month}/{file_id}.{extension}"

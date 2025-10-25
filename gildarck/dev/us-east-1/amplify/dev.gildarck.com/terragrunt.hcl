@@ -87,6 +87,8 @@ inputs = {
       cache:
         paths:
           - node_modules/**/*
+    compute:
+      type: STANDARD_2GB
   EOT
 
   environment_variables = local.vars.AMPLIFY_VARIABLES

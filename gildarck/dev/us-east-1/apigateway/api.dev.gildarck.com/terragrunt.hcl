@@ -72,14 +72,14 @@ locals {
 
 dependencies {
   paths = [
-    "../../lambda/function-authorizer",
+    "../../cognito/gildarck-user-pool",
     "../../lambda/user-crud",
     "../../lambda/upload-handler"
   ]
 }
 
-dependency "authorizer" {
-  config_path = "../../lambda/function-authorizer"
+dependency "cognito" {
+  config_path = "../../cognito/gildarck-user-pool"
 }
 
 dependency "user_crud" {
@@ -117,16 +117,14 @@ inputs = {
     
     components = {
       securitySchemes = {
-        FirebaseJWTAuthorizer = {
+        CognitoAuthorizer = {
           type = "apiKey"
           name = "Authorization"
           in = "header"
-          x-amazon-apigateway-authtype = "custom"
+          x-amazon-apigateway-authtype = "cognito_user_pools"
           x-amazon-apigateway-authorizer = {
-            type = "request"
-            authorizerUri = dependency.authorizer.outputs.lambda_function_invoke_arn
-            authorizerResultTtlInSeconds = 0
-            identitySource = "method.request.header.Authorization"
+            type = "cognito_user_pools"
+            providerARNs = [dependency.cognito.outputs.user_pool.arn]
           }
         }
       }
@@ -307,7 +305,7 @@ inputs = {
           ]
           security = [
             {
-              "FirebaseJWTAuthorizer" = []
+              "CognitoAuthorizer" = []
             }
           ]
         }
@@ -336,7 +334,7 @@ inputs = {
           ]
           security = [
             {
-              "FirebaseJWTAuthorizer" = []
+              "CognitoAuthorizer" = []
             }
           ]
         }
@@ -374,7 +372,7 @@ inputs = {
           ]
           security = [
             {
-              "FirebaseJWTAuthorizer" = []
+              "CognitoAuthorizer" = []
             }
           ]
         }
@@ -409,7 +407,7 @@ inputs = {
           ]
           security = [
             {
-              "FirebaseJWTAuthorizer" = []
+              "CognitoAuthorizer" = []
             }
           ]
         }
@@ -444,7 +442,7 @@ inputs = {
           ]
           security = [
             {
-              "FirebaseJWTAuthorizer" = []
+              "CognitoAuthorizer" = []
             }
           ]
         }
@@ -454,7 +452,7 @@ inputs = {
       # Upload endpoints - Authenticated
       "/upload/initiate" = {
         post = {
-          security = [{ FirebaseJWTAuthorizer = [] }]
+          security = [{ CognitoAuthorizer = [] }]
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
@@ -468,7 +466,7 @@ inputs = {
 
       "/upload/complete" = {
         post = {
-          security = [{ FirebaseJWTAuthorizer = [] }]
+          security = [{ CognitoAuthorizer = [] }]
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
@@ -482,7 +480,7 @@ inputs = {
 
       "/upload/presigned" = {
         get = {
-          security = [{ FirebaseJWTAuthorizer = [] }]
+          security = [{ CognitoAuthorizer = [] }]
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "GET"
@@ -496,7 +494,7 @@ inputs = {
 
       "/media/list" = {
         get = {
-          security = [{ FirebaseJWTAuthorizer = [] }]
+          security = [{ CognitoAuthorizer = [] }]
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
@@ -510,7 +508,7 @@ inputs = {
       
       "/media/thumbnail/{file_id}" = {
         get = {
-          security = [{ FirebaseJWTAuthorizer = [] }]
+          security = [{ CognitoAuthorizer = [] }]
           parameters = [{ name = "file_id", in = "path", required = true, type = "string" }]
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
@@ -525,7 +523,7 @@ inputs = {
 
       "/media/file/{file_id}" = {
         get = {
-          security = [{ FirebaseJWTAuthorizer = [] }]
+          security = [{ CognitoAuthorizer = [] }]
           parameters = [{ name = "file_id", in = "path", required = true, type = "string" }]
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"

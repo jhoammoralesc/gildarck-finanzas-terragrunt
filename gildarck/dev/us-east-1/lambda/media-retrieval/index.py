@@ -2,30 +2,70 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
+from decimal import Decimal
+
+# Custom JSON encoder for Decimal values
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            return float(o)
+        return super(DecimalEncoder, self).default(o)
 
 dynamodb = boto3.resource('dynamodb')
 s3 = boto3.client('s3')
 table = dynamodb.Table('gildarck-media-metadata-dev')
 
+def extract_cognito_sub(event):
+    """Extract cognito sub from API Gateway authorizer context"""
+    try:
+        # Try different possible paths for Cognito sub
+        if 'requestContext' in event and 'authorizer' in event['requestContext']:
+            authorizer = event['requestContext']['authorizer']
+            
+            # Path 1: Direct claims
+            if 'claims' in authorizer and 'sub' in authorizer['claims']:
+                return authorizer['claims']['sub']
+            
+            # Path 2: Cognito identity
+            if 'sub' in authorizer:
+                return authorizer['sub']
+                
+            # Path 3: Principal ID (sometimes used)
+            if 'principalId' in authorizer:
+                return authorizer['principalId']
+        
+        print(f"DEBUG: Full event context: {event.get('requestContext', {})}")
+        raise ValueError("Cognito sub not found in request context")
+    except Exception as e:
+        print(f"Error extracting Cognito sub: {str(e)}")
+        raise ValueError("Cognito sub not found in request context")
+
 def lambda_handler(event, context):
     try:
         # Extract user_id (Cognito sub) consistently with other functions
-        user_id = event.get('requestContext', {}).get('authorizer', {}).get('sub')
-        if not user_id:
-            return {
-                'statusCode': 401,
-                'headers': cors_headers(),
-                'body': json.dumps({'error': 'Unauthorized - Missing user ID'})
-            }
+        user_id = extract_cognito_sub(event)
         
-        path = event['pathParameters']['proxy'] if event.get('pathParameters') else ''
+        # Handle both proxy and direct path configurations
+        path = ""
+        if event.get('pathParameters') and event['pathParameters'].get('proxy'):
+            path = event['pathParameters']['proxy']
+        else:
+            # For direct endpoints like /media/list, extract from resource path
+            resource_path = event.get('resource', '')
+            if resource_path == '/media/list':
+                path = 'list'
+            elif resource_path.startswith('/media/thumbnail/'):
+                path = resource_path.replace('/media/', '')
+            elif resource_path.startswith('/media/file/'):
+                path = resource_path.replace('/media/', '')
+        
         method = event['httpMethod']
         
         print(f"Processing: {method} {path} for user {user_id}")
         
         if method == 'GET':
             if path == 'list':
-                return list_media(user_id, event.get('queryStringParameters', {}))
+                return list_media_chronological(user_id, event.get('queryStringParameters') or {})
             elif path.startswith('thumbnail/'):
                 file_id = path.split('/')[-1]
                 return get_thumbnail(user_id, file_id)
@@ -54,33 +94,66 @@ def cors_headers():
         'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
     }
 
-def list_media(user_id, params):
+def list_media_chronological(user_id, params):
+    """List media chronologically like Google Photos - newest first"""
     try:
+        # Ensure params is a dict
+        if params is None:
+            params = {}
+        
         limit = int(params.get('limit', 50))
-        last_key = params.get('lastKey')
         
-        query_params = {
-            'KeyConditionExpression': Key('user_id').eq(user_id),
-            'Limit': limit,
-            'ScanIndexForward': False
-        }
+        # Query all user media and sort by upload_date
+        response = table.query(
+            KeyConditionExpression=Key('user_id').eq(user_id),
+            Limit=limit * 2  # Get more to ensure we have enough after sorting
+        )
         
-        if last_key:
-            query_params['ExclusiveStartKey'] = json.loads(last_key)
+        items = response.get('Items', [])
         
-        response = table.query(**query_params)
+        # Sort chronologically (newest first) by upload_date
+        sorted_items = sorted(
+            items, 
+            key=lambda x: x.get('upload_date', ''), 
+            reverse=True
+        )[:limit]
+        
+        # Format for frontend consumption (Google Photos style)
+        formatted_items = []
+        for item in sorted_items:
+            # Safely get ai_analysis data
+            ai_analysis = item.get('ai_analysis') or {}
+            labels = ai_analysis.get('labels') or []
+            
+            formatted_item = {
+                'file_id': item.get('file_id'),
+                'upload_date': item.get('upload_date'),
+                'original_filename': item.get('original_filename'),
+                'content_type': item.get('content_type'),
+                'file_size': item.get('file_size'),
+                'thumbnails': item.get('thumbnails', {}),
+                'ai_analysis': {
+                    'labels': [label.get('name') for label in labels if label and isinstance(label, dict)],
+                    'faces_count': ai_analysis.get('faces_count', 0)
+                },
+                'processing_status': item.get('processing_status'),
+                'organization': item.get('organization', {}),
+                'file_info': item.get('file_info', {})
+            }
+            formatted_items.append(formatted_item)
         
         return {
             'statusCode': 200,
             'headers': cors_headers(),
             'body': json.dumps({
-                'items': response['Items'],
-                'lastKey': json.dumps(response.get('LastEvaluatedKey')) if response.get('LastEvaluatedKey') else None,
-                'count': len(response['Items'])
-            }, default=str)
+                'items': formatted_items,
+                'count': len(formatted_items),
+                'total_available': len(items),
+                'sorted_by': 'upload_date_desc'
+            }, cls=DecimalEncoder)
         }
     except Exception as e:
-        print(f"Error listing media for user {user_id}: {str(e)}")
+        print(f"Error listing media chronologically for user {user_id}: {str(e)}")
         return {
             'statusCode': 500,
             'headers': cors_headers(),

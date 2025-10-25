@@ -119,9 +119,9 @@ locals {
   PRIVATE_SUBNETS          = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   PUBLIC_SUBNETS           = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
   DATABASE_SUBNETS         = ["10.0.21.0/24", "10.0.22.0/24", "10.0.23.0/24"]
-  ENABLE_NAT_GATEWAY       = true
+  ENABLE_NAT_GATEWAY       = false
   ENABLE_INTERNET_GATEWAY  = true
-  SINGLE_NAT_GATEWAY       = true
+  SINGLE_NAT_GATEWAY       = false
   ONE_NAT_GATEWAY_PER_AZ   = false
   ENABLE_DNS_HOSTNAMES     = true
   ENABLE_DNS_SUPPORT       = true

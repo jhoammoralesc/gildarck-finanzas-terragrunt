@@ -17,6 +17,13 @@ USER_POOL_ID = os.environ['USER_POOL_ID']
 CLIENT_ID = os.environ['CLIENT_ID']
 CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
 
+def extract_cognito_sub(event):
+    """Extract cognito sub from API Gateway authorizer context"""
+    try:
+        return event['requestContext']['authorizer']['claims']['sub']
+    except KeyError:
+        raise ValueError("Cognito sub not found in request context")
+
 def send_welcome_email(email, name, temp_password):
     """Send custom welcome email with original name"""
     subject = "¡Bienvenido a GILDARCK! 📸"
@@ -430,11 +437,16 @@ def logout_user(event):
     try:
         body = json.loads(event['body'])
         access_token = body.get('access_token')
+        id_token = body.get('id_token')
         
-        if access_token:
+        # Use access_token for logout (required by Cognito global_sign_out)
+        # id_token is used for API Gateway authorization but access_token for logout
+        token_to_use = access_token or id_token
+        
+        if token_to_use:
             # Invalidate the access token
             cognito_client.global_sign_out(
-                AccessToken=access_token
+                AccessToken=token_to_use
             )
         
         return {

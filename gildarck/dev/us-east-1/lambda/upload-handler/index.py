@@ -17,14 +17,19 @@ SUPPORTED_EXTENSIONS = {
     'document': ['pdf', 'doc', 'docx', 'txt', 'rtf']
 }
 
+def extract_cognito_sub(event):
+    """Extract cognito sub from API Gateway authorizer context"""
+    try:
+        return event['requestContext']['authorizer']['claims']['sub']
+    except KeyError:
+        raise ValueError("Cognito sub not found in request context")
+
 def lambda_handler(event, context):
     try:
         print(f"Received event: {json.dumps(event, default=str)}")
         
-        # Extract user ID from authorizer
-        user_id = event.get('requestContext', {}).get('authorizer', {}).get('sub')
-        if not user_id:
-            return error_response(401, 'Unauthorized - Missing user ID')
+        # Extract user ID from Cognito authorizer
+        user_id = extract_cognito_sub(event)
         
         http_method = event['httpMethod']
         path = event['path']
@@ -32,7 +37,7 @@ def lambda_handler(event, context):
         print(f"Processing: {http_method} {path} for user {user_id}")
         
         if http_method == 'POST' and path == '/upload/initiate':
-            return initiate_multipart_upload(event, user_id)
+            return initiate_upload(event, user_id)
         elif http_method == 'POST' and path == '/upload/complete':
             return complete_multipart_upload(event, user_id)
         elif http_method == 'GET' and '/upload/presigned' in path:
@@ -98,7 +103,7 @@ def validate_file(filename, file_size):
     
     return file_extension
 
-def initiate_multipart_upload(event, user_id):
+def initiate_upload(event, user_id):
     try:
         body = json.loads(event['body'])
         print(f"Initiate upload body: {body}")
@@ -111,39 +116,70 @@ def initiate_multipart_upload(event, user_id):
         file_extension = validate_file(filename, file_size)
         
         file_id = str(uuid.uuid4())
+        timestamp = datetime.now()
+        year = timestamp.strftime('%Y')
+        month = timestamp.strftime('%m')
         
-        # Create temp path for initial upload
-        temp_key = f"{user_id}/temp/{file_id}.{file_extension}"
+        # Decision: Simple upload for files < 100MB, multipart for larger files
+        MULTIPART_THRESHOLD = 100 * 1024 * 1024  # 100MB
         
-        # Calculate chunk size (5MB) and number of parts
-        chunk_size = 5 * 1024 * 1024  # 5MB
-        total_parts = max(1, (file_size + chunk_size - 1) // chunk_size)
-        
-        print(f"Creating multipart upload: bucket={BUCKET_NAME}, key={temp_key}")
-        
-        response = s3.create_multipart_upload(
-            Bucket=BUCKET_NAME,
-            Key=temp_key,
-            ContentType=content_type,
-            Metadata={
-                'original-filename': filename,
-                'user-id': user_id,
-                'file-id': file_id,
-                'upload-timestamp': datetime.now().isoformat()
+        if file_size < MULTIPART_THRESHOLD:
+            # Simple upload with presigned URL
+            final_key = f"{user_id}/originals/{year}/{month}/{file_id}_{filename}"
+            
+            presigned_url = s3.generate_presigned_url(
+                'put_object',
+                Params={
+                    'Bucket': BUCKET_NAME,
+                    'Key': final_key,
+                    'ContentType': content_type
+                },
+                ExpiresIn=3600  # 1 hour
+            )
+            
+            result = {
+                'uploadUrl': presigned_url,
+                'fileId': file_id,
+                'key': final_key,
+                'uploadType': 'simple',
+                'message': 'Simple upload URL generated'
             }
-        )
+            
+            print(f"Simple upload initiated for {filename} ({file_size} bytes)")
+            return success_response(result)
         
-        result = {
-            'uploadId': response['UploadId'],
-            'key': temp_key,
-            'fileId': file_id,
-            'chunkSize': chunk_size,
-            'totalParts': total_parts,
-            'message': 'Multipart upload initiated successfully'
-        }
-        
-        print(f"Upload initiated successfully: {result}")
-        return success_response(result)
+        else:
+            # Multipart upload for large files
+            temp_key = f"{user_id}/temp/{file_id}.{file_extension}"
+            chunk_size = 5 * 1024 * 1024  # 5MB
+            total_parts = max(1, (file_size + chunk_size - 1) // chunk_size)
+            
+            print(f"Creating multipart upload: bucket={BUCKET_NAME}, key={temp_key}")
+            
+            response = s3.create_multipart_upload(
+                Bucket=BUCKET_NAME,
+                Key=temp_key,
+                ContentType=content_type,
+                Metadata={
+                    'original-filename': filename,
+                    'user-id': user_id,
+                    'file-id': file_id,
+                    'upload-timestamp': timestamp.isoformat()
+                }
+            )
+            
+            result = {
+                'uploadId': response['UploadId'],
+                'key': temp_key,
+                'fileId': file_id,
+                'chunkSize': chunk_size,
+                'totalParts': total_parts,
+                'uploadType': 'multipart',
+                'message': 'Multipart upload initiated successfully'
+            }
+            
+            print(f"Multipart upload initiated for {filename} ({file_size} bytes, {total_parts} parts)")
+            return success_response(result)
         
     except ValueError as e:
         print(f"Validation error: {str(e)}")
