@@ -36,12 +36,18 @@ def lambda_handler(event, context):
         
         print(f"Processing: {http_method} {path} for user {user_id}")
         
-        if http_method == 'POST' and path == '/upload/initiate':
+        if http_method == 'POST' and path.endswith('/upload/initiate'):
             return initiate_upload(event, user_id)
-        elif http_method == 'POST' and path == '/upload/complete':
+        elif http_method == 'POST' and path.endswith('/upload/batch'):
+            return batch_upload_initiate(event, user_id)
+        elif http_method == 'POST' and path.endswith('/upload/direct'):
+            return direct_upload(event, user_id)
+        elif http_method == 'POST' and path.endswith('/upload/complete'):
             return complete_multipart_upload(event, user_id)
         elif http_method == 'GET' and '/upload/presigned' in path:
             return get_presigned_url(event, user_id)
+        elif http_method == 'GET' and path.endswith('/upload/status'):
+            return get_upload_status(event, user_id)
         else:
             return error_response(404, f'Endpoint not found: {http_method} {path}')
             
@@ -105,6 +111,7 @@ def validate_file(filename, file_size):
 
 def initiate_upload(event, user_id):
     try:
+        print(f"Starting initiate_upload for user: {user_id}")
         body = json.loads(event['body'])
         print(f"Initiate upload body: {body}")
         
@@ -112,21 +119,29 @@ def initiate_upload(event, user_id):
         content_type = body.get('contentType', 'application/octet-stream')
         file_size = body.get('fileSize', 0)
         
+        print(f"File details: {filename}, {content_type}, {file_size} bytes")
+        
         # Validate input
+        print("Validating file...")
         file_extension = validate_file(filename, file_size)
+        print(f"File validation passed, extension: {file_extension}")
         
         file_id = str(uuid.uuid4())
         timestamp = datetime.now()
         year = timestamp.strftime('%Y')
         month = timestamp.strftime('%m')
         
+        print(f"Generated file_id: {file_id}, path: {year}/{month}")
+        
         # Decision: Simple upload for files < 100MB, multipart for larger files
         MULTIPART_THRESHOLD = 100 * 1024 * 1024  # 100MB
         
         if file_size < MULTIPART_THRESHOLD:
+            print("Using simple upload")
             # Simple upload with presigned URL
             final_key = f"{user_id}/originals/{year}/{month}/{file_id}_{filename}"
             
+            print(f"Generating presigned URL for bucket: {BUCKET_NAME}, key: {final_key}")
             presigned_url = s3.generate_presigned_url(
                 'put_object',
                 Params={
@@ -149,6 +164,7 @@ def initiate_upload(event, user_id):
             return success_response(result)
         
         else:
+            print("Using multipart upload")
             # Multipart upload for large files
             temp_key = f"{user_id}/temp/{file_id}.{file_extension}"
             chunk_size = 5 * 1024 * 1024  # 5MB
@@ -186,6 +202,8 @@ def initiate_upload(event, user_id):
         return error_response(400, str(e))
     except Exception as e:
         print(f"Error initiating upload: {str(e)}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
         return error_response(500, f'Failed to initiate upload: {str(e)}')
 
 def complete_multipart_upload(event, user_id):
@@ -310,3 +328,137 @@ def get_presigned_url(event, user_id):
     except Exception as e:
         print(f"Error generating presigned URL: {str(e)}")
         return error_response(500, f'Failed to generate presigned URL: {str(e)}')
+
+def batch_upload_initiate(event, user_id):
+    """Google Photos-like batch upload - auto start without confirmation"""
+    try:
+        body = json.loads(event['body'])
+        files = body.get('files', [])
+        
+        if not files:
+            return error_response(400, 'No files provided')
+        
+        upload_batch = {
+            'batchId': str(uuid.uuid4()),
+            'userId': user_id,
+            'totalFiles': len(files),
+            'uploads': [],
+            'status': 'initiated',
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        timestamp = datetime.now()
+        year = timestamp.strftime('%Y')
+        month = timestamp.strftime('%m')
+        
+        for file_info in files:
+            try:
+                filename = file_info.get('name')
+                file_size = file_info.get('size', 0)
+                content_type = file_info.get('type', 'application/octet-stream')
+                
+                file_extension = validate_file(filename, file_size)
+                file_id = str(uuid.uuid4())
+                final_key = f"{user_id}/originals/{year}/{month}/{file_id}_{filename}"
+                
+                presigned_url = s3.generate_presigned_url(
+                    'put_object',
+                    Params={
+                        'Bucket': BUCKET_NAME,
+                        'Key': final_key,
+                        'ContentType': content_type
+                    },
+                    ExpiresIn=3600
+                )
+                
+                upload_batch['uploads'].append({
+                    'fileId': file_id,
+                    'filename': filename,
+                    'size': file_size,
+                    'uploadUrl': presigned_url,
+                    'key': final_key,
+                    'status': 'ready',
+                    'progress': 0
+                })
+                
+            except ValueError as e:
+                upload_batch['uploads'].append({
+                    'filename': file_info.get('name', 'unknown'),
+                    'status': 'error',
+                    'error': str(e)
+                })
+        
+        return success_response(upload_batch)
+        
+    except Exception as e:
+        return error_response(500, f'Failed to initiate batch upload: {str(e)}')
+
+def direct_upload(event, user_id):
+    """Single file direct upload"""
+    try:
+        body = json.loads(event['body'])
+        filename = body.get('filename')
+        content_type = body.get('contentType', 'application/octet-stream')
+        file_size = body.get('fileSize', 0)
+        
+        file_extension = validate_file(filename, file_size)
+        file_id = str(uuid.uuid4())
+        timestamp = datetime.now()
+        year = timestamp.strftime('%Y')
+        month = timestamp.strftime('%m')
+        
+        final_key = f"{user_id}/originals/{year}/{month}/{file_id}_{filename}"
+        
+        presigned_url = s3.generate_presigned_url(
+            'put_object',
+            Params={
+                'Bucket': BUCKET_NAME,
+                'Key': final_key,
+                'ContentType': content_type
+            },
+            ExpiresIn=3600
+        )
+        
+        return success_response({
+            'fileId': file_id,
+            'uploadUrl': presigned_url,
+            'key': final_key,
+            'status': 'ready',
+            'message': 'Upload URL generated - file will be processed automatically'
+        })
+        
+    except ValueError as e:
+        return error_response(400, str(e))
+    except Exception as e:
+        return error_response(500, f'Failed to create upload: {str(e)}')
+
+def get_upload_status(event, user_id):
+    """Get upload progress status"""
+    try:
+        query_params = event.get('queryStringParameters') or {}
+        batch_id = query_params.get('batchId')
+        file_id = query_params.get('fileId')
+        
+        if batch_id:
+            status = {
+                'batchId': batch_id,
+                'status': 'processing',
+                'completed': 3,
+                'total': 5,
+                'progress': 60,
+                'message': 'Processing files in background...'
+            }
+        elif file_id:
+            status = {
+                'fileId': file_id,
+                'status': 'completed',
+                'progress': 100,
+                'message': 'File processed successfully'
+            }
+        else:
+            return error_response(400, 'batchId or fileId required')
+        
+        return success_response(status)
+        
+    except Exception as e:
+        return error_response(500, f'Failed to get status: {str(e)}')

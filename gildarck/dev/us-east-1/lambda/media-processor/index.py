@@ -152,8 +152,13 @@ def process_organized_file(bucket, key, file_content=None, actual_date=None):
     """Process file in final organized location"""
     print(f"Processing organized file: {key}")
     
-    # Extract info from organized path
+    # Skip thumbnail files - they don't need processing
     path_parts = key.split('/')
+    if len(path_parts) >= 2 and path_parts[1] in ['thumbnails', 'compressed', 'trash']:
+        print(f"Skipping non-original file: {key}")
+        return {'statusCode': 200, 'body': 'Skipped non-original file'}
+    
+    # Extract info from organized path
     if len(path_parts) < 5 or path_parts[1] != 'originals':
         print(f"Invalid organized path: {key}")
         return {'statusCode': 400, 'body': 'Invalid organized path'}

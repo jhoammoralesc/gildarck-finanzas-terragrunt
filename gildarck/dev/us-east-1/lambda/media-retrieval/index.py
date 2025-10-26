@@ -47,17 +47,22 @@ def lambda_handler(event, context):
         
         # Handle both proxy and direct path configurations
         path = ""
+        resource_path = event.get('resource', '')
+        
         if event.get('pathParameters') and event['pathParameters'].get('proxy'):
             path = event['pathParameters']['proxy']
         else:
-            # For direct endpoints like /media/list, extract from resource path
-            resource_path = event.get('resource', '')
+            # For direct endpoints, extract from resource path
             if resource_path == '/media/list':
                 path = 'list'
+            elif resource_path == '/media/trash':
+                path = 'trash'
             elif resource_path.startswith('/media/thumbnail/'):
                 path = resource_path.replace('/media/', '')
             elif resource_path.startswith('/media/file/'):
                 path = resource_path.replace('/media/', '')
+            elif '/trash' in resource_path:
+                path = 'trash'
         
         method = event['httpMethod']
         
@@ -66,6 +71,8 @@ def lambda_handler(event, context):
         if method == 'GET':
             if path == 'list':
                 return list_media_chronological(user_id, event.get('queryStringParameters') or {})
+            elif path == 'trash':
+                return list_trash_items(user_id)
             elif path.startswith('thumbnail/'):
                 file_id = path.split('/')[-1]
                 return get_thumbnail(user_id, file_id)
@@ -124,9 +131,12 @@ def list_media_chronological(user_id, params):
         total_count = len(sorted_items)
         paginated_items = sorted_items[offset:offset + limit]
         
+        # Filter out trashed items (only show active media)
+        active_items = [item for item in paginated_items if item.get('processing_status') != 'trashed']
+        
         # Format for frontend consumption (Google Photos style)
         formatted_items = []
-        for item in paginated_items:
+        for item in active_items:
             # Safely get ai_analysis data
             ai_analysis = item.get('ai_analysis') or {}
             labels = ai_analysis.get('labels') or []
@@ -168,10 +178,10 @@ def list_media_chronological(user_id, params):
             'body': json.dumps({
                 'items': formatted_items,
                 'count': len(formatted_items),
-                'total_count': total_count,
+                'total_count': len(active_items),  # Only count active items
                 'offset': offset,
                 'limit': limit,
-                'has_more': offset + limit < total_count,
+                'has_more': offset + limit < len(active_items),
                 'sorted_by': 'chronological_desc'
             }, cls=DecimalEncoder)
         }
@@ -270,4 +280,62 @@ def get_file_details(user_id, file_id):
             'statusCode': 500,
             'headers': cors_headers(),
             'body': json.dumps({'error': f'Failed to get file details: {str(e)}'})
+        }
+
+def list_trash_items(user_id):
+    """List all items in trash for user - Google Photos style"""
+    try:
+        # Query all user items and filter trashed ones
+        response = table.query(
+            KeyConditionExpression=Key('user_id').eq(user_id)
+        )
+        
+        items = response.get('Items', [])
+        trash_items = []
+        
+        for item in items:
+            if item.get('processing_status') == 'trashed':
+                # Generate thumbnail URL if available
+                thumbnail_url = None
+                thumbnails = item.get('thumbnails', {})
+                if thumbnails.get('medium'):
+                    try:
+                        thumbnail_url = s3.generate_presigned_url(
+                            'get_object',
+                            Params={'Bucket': 'gildarck-media-dev', 'Key': thumbnails['medium']},
+                            ExpiresIn=3600
+                        )
+                    except:
+                        pass
+                
+                trash_item = {
+                    'file_id': item.get('file_id'),
+                    'original_filename': item.get('original_filename'),
+                    'trash_date': item.get('trash_date', ''),
+                    'file_size': item.get('file_size'),
+                    'content_type': item.get('content_type'),
+                    'thumbnail_url': thumbnail_url,
+                    'media_type': item.get('media_type', 'unknown')
+                }
+                trash_items.append(trash_item)
+        
+        # Sort by trash date (newest first)
+        trash_items.sort(key=lambda x: x.get('trash_date', ''), reverse=True)
+        
+        return {
+            'statusCode': 200,
+            'headers': cors_headers(),
+            'body': json.dumps({
+                'items': trash_items,
+                'count': len(trash_items),
+                'total_size_bytes': sum(item.get('file_size', 0) for item in items if item.get('processing_status') == 'trashed')
+            }, cls=DecimalEncoder)
+        }
+        
+    except Exception as e:
+        print(f"Error listing trash items for user {user_id}: {str(e)}")
+        return {
+            'statusCode': 500,
+            'headers': cors_headers(),
+            'body': json.dumps({'error': f'Failed to list trash: {str(e)}'})
         }

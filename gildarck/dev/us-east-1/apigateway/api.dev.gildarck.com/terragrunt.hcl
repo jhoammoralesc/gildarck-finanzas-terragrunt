@@ -562,7 +562,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = dependency.media_delete.outputs.lambda_function_invoke_arn
+            uri = dependency.media_retrieval.outputs.lambda_function_invoke_arn
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses

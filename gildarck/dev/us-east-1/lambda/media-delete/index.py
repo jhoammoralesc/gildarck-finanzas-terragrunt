@@ -4,6 +4,14 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
 from boto3.dynamodb.conditions import Key
+from decimal import Decimal
+
+# Custom JSON encoder for Decimal values
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            return float(o)
+        return super(DecimalEncoder, self).default(o)
 
 # Configure logging
 logger = logging.getLogger()
@@ -54,7 +62,11 @@ def lambda_handler(event, context):
             }
         
         # Parse request
-        body = json.loads(event.get('body', '{}'))
+        body_str = event.get('body')
+        if body_str is None:
+            return error_response('Missing request body')
+        
+        body = json.loads(body_str)
         action = body.get('action')  # 'trash', 'delete', 'restore', 'list_trash'
         file_ids = body.get('file_ids', [])  # List of file IDs
         
@@ -86,7 +98,7 @@ def lambda_handler(event, context):
                 'success': True,
                 'action': action,
                 'results': results
-            })
+            }, cls=DecimalEncoder)
         }
         
     except Exception as e:
@@ -107,7 +119,7 @@ def error_response(error_message):
         'body': json.dumps({
             'success': False,
             'error': error_message
-        })
+        }, cls=DecimalEncoder)
     }
 
 def move_to_trash(user_id: str, file_ids: List[str]) -> List[Dict]:
@@ -126,6 +138,11 @@ def move_to_trash(user_id: str, file_ids: List[str]) -> List[Dict]:
                 continue
             
             item = response['Item']
+            
+            # Check if already in trash
+            if item.get('processing_status') == 'trashed':
+                results.append({'file_id': file_id, 'success': False, 'error': 'File already in trash'})
+                continue
             
             # Get original path from s3_paths structure (consistent with media-processor)
             s3_paths = item.get('s3_paths', {})
@@ -188,7 +205,7 @@ def move_to_trash(user_id: str, file_ids: List[str]) -> List[Dict]:
             # Delete from originals
             s3_client.delete_object(Bucket=BUCKET_NAME, Key=actual_path)
             
-            # Move thumbnails to trash (using consistent structure)
+            # Move thumbnails to trash (handle missing thumbnails gracefully)
             thumbnails = item.get('thumbnails', {})
             trash_thumbnails = {}
             
@@ -197,6 +214,8 @@ def move_to_trash(user_id: str, file_ids: List[str]) -> List[Dict]:
                 trash_thumb_path = f"{user_id}/trash/thumbnails/{size}/{file_id}_{size[0]}.webp"
                 
                 try:
+                    # Check if thumbnail exists before trying to move it
+                    s3_client.head_object(Bucket=BUCKET_NAME, Key=thumb_path)
                     s3_client.copy_object(
                         Bucket=BUCKET_NAME,
                         CopySource={'Bucket': BUCKET_NAME, 'Key': thumb_path},
@@ -204,9 +223,11 @@ def move_to_trash(user_id: str, file_ids: List[str]) -> List[Dict]:
                     )
                     s3_client.delete_object(Bucket=BUCKET_NAME, Key=thumb_path)
                     trash_thumbnails[size] = trash_thumb_path
+                    logger.info(f"Moved thumbnail {thumb_path} to trash")
                 except Exception as thumb_error:
-                    logger.warning(f"Could not move thumbnail {thumb_path}: {str(thumb_error)}")
-                    trash_thumbnails[size] = trash_thumb_path  # Keep path for consistency
+                    logger.warning(f"Thumbnail {thumb_path} not found or could not be moved: {str(thumb_error)}")
+                    # Create placeholder path for consistency
+                    trash_thumbnails[size] = trash_thumb_path
             
             # Update metadata - mark as trashed with consistent structure
             updated_s3_paths = s3_paths.copy()
