@@ -94,6 +94,10 @@ dependency "media_retrieval" {
   config_path = "../../lambda/media-retrieval"
 }
 
+dependency "media_delete" {
+  config_path = "../../lambda/media-delete"
+}
+
 inputs = {
   api_name = local.name
   api_description = "GILDARCK Photo Management API - private VPC with MOCK endpoints"
@@ -536,6 +540,35 @@ inputs = {
         
         options = local.options
       }
+
+      # Google Photos-style delete endpoints
+      "/media/delete" = {
+        post = {
+          security = [{ CognitoAuthorizer = [] }]
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.media_delete.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+        }
+        options = local.options
+      }
+
+      "/media/trash" = {
+        get = {
+          security = [{ CognitoAuthorizer = [] }]
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = dependency.media_delete.outputs.lambda_function_invoke_arn
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+        }
+        options = local.options
+      }
     }
   }
   
@@ -559,6 +592,13 @@ inputs = {
       statement_id  = "AllowExecutionFromAPIGateway"
       action        = "lambda:InvokeFunction"
       function_name = dependency.media_retrieval.outputs.lambda_function_name
+      principal     = "apigateway.amazonaws.com"
+      source_arn    = "arn:aws:execute-api:us-east-1:*:*/*/*"
+    }
+    media_delete = {
+      statement_id  = "AllowExecutionFromAPIGateway"
+      action        = "lambda:InvokeFunction"
+      function_name = dependency.media_delete.outputs.lambda_function_name
       principal     = "apigateway.amazonaws.com"
       source_arn    = "arn:aws:execute-api:us-east-1:*:*/*/*"
     }

@@ -13,7 +13,7 @@ locals {
   AMPLIFY_DNS         = "dev.gildarck.com"
   AMPLIFY_VARIABLES = {
     DOMAIN            = "https://dev.gildarck.com/"
-    API_URL_BASE      = "https://api.dev.gildarck.com"
+    API_URL_BASE      = "https://gslxbu791e.execute-api.us-east-1.amazonaws.com/dev"
     URL_BASE_IMAGES   = "https://assets.dev.gildarck.com"
     SUPPORT_EMAIL     = "maohjmorales91@gmail.com"
     DOWNTIME          = 8
