@@ -28,16 +28,23 @@ def lambda_handler(event, context):
             
             logger.info(f"Processing thumbnails for: {s3_key}")
             
-            # Check if it's an image file
+            # Check if it's an image or video file
             if is_image_file(s3_key):
-                success = create_thumbnails(user_id, s3_key, file_id)
+                success = create_image_thumbnails(user_id, s3_key, file_id)
                 if success:
                     processed_count += 1
-                    logger.info(f"Successfully created thumbnails for {s3_key}")
+                    logger.info(f"Successfully created image thumbnails for {s3_key}")
                 else:
-                    logger.error(f"Failed to create thumbnails for {s3_key}")
+                    logger.error(f"Failed to create image thumbnails for {s3_key}")
+            elif is_video_file(s3_key):
+                success = create_video_thumbnails(user_id, s3_key, file_id)
+                if success:
+                    processed_count += 1
+                    logger.info(f"Successfully created video thumbnails for {s3_key}")
+                else:
+                    logger.error(f"Failed to create video thumbnails for {s3_key}")
             else:
-                logger.info(f"Skipping non-image file: {s3_key}")
+                logger.info(f"Skipping unsupported file: {s3_key}")
         
         return {
             'statusCode': 200,
@@ -60,7 +67,12 @@ def is_image_file(s3_key):
     image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff']
     return any(s3_key.lower().endswith(ext) for ext in image_extensions)
 
-def create_thumbnails(user_id, s3_key, file_id):
+def is_video_file(s3_key):
+    """Check if file is a supported video format"""
+    video_extensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v']
+    return any(s3_key.lower().endswith(ext) for ext in video_extensions)
+
+def create_image_thumbnails(user_id, s3_key, file_id):
     """Create actual thumbnails using Pillow"""
     try:
         # Download original image
@@ -82,19 +94,32 @@ def create_thumbnails(user_id, s3_key, file_id):
             
             # Generate each thumbnail
             for size_name, config in thumbnail_configs.items():
-                # Create thumbnail maintaining aspect ratio
+                # Create thumbnail with crop to fill (like Google Photos)
                 thumbnail = img.copy()
-                thumbnail.thumbnail(config['size'], Image.Resampling.LANCZOS)
                 
-                # Create a square canvas and center the image
-                canvas = Image.new('RGB', config['size'], (255, 255, 255))
-                offset = ((config['size'][0] - thumbnail.width) // 2,
-                         (config['size'][1] - thumbnail.height) // 2)
-                canvas.paste(thumbnail, offset)
+                # Calculate crop dimensions to maintain aspect ratio and fill square
+                img_width, img_height = thumbnail.size
+                target_size = config['size'][0]  # Square thumbnails
                 
-                # Save as WebP
+                # Calculate crop box to center the image
+                if img_width > img_height:
+                    # Landscape: crop width
+                    new_width = int(img_height)
+                    left = (img_width - new_width) // 2
+                    crop_box = (left, 0, left + new_width, img_height)
+                else:
+                    # Portrait or square: crop height
+                    new_height = int(img_width)
+                    top = (img_height - new_height) // 2
+                    crop_box = (0, top, img_width, top + new_height)
+                
+                # Crop to square and resize
+                thumbnail = thumbnail.crop(crop_box)
+                thumbnail = thumbnail.resize(config['size'], Image.Resampling.LANCZOS)
+                
+                # Save as WebP directly (no white canvas)
                 output_buffer = io.BytesIO()
-                canvas.save(output_buffer, format='WEBP', quality=85, optimize=True)
+                thumbnail.save(output_buffer, format='WEBP', quality=85, optimize=True)
                 output_buffer.seek(0)
                 
                 # Upload to S3
@@ -118,5 +143,49 @@ def create_thumbnails(user_id, s3_key, file_id):
         return True
         
     except Exception as e:
-        logger.error(f"Error creating thumbnails for {s3_key}: {str(e)}")
+        logger.error(f"Error creating image thumbnails for {s3_key}: {str(e)}")
+        return False
+
+def create_video_thumbnails(user_id, s3_key, file_id):
+    """Create video thumbnails - placeholder for now"""
+    try:
+        # For now, create a simple placeholder thumbnail for videos
+        thumbnail_configs = {
+            'small': {'size': (150, 150), 'path': f"{user_id}/thumbnails/small/{file_id}_s.webp"},
+            'medium': {'size': (300, 300), 'path': f"{user_id}/thumbnails/medium/{file_id}_m.webp"},
+            'large': {'size': (800, 800), 'path': f"{user_id}/thumbnails/large/{file_id}_l.webp"}
+        }
+        
+        for size_name, config in thumbnail_configs.items():
+            # Create a dark placeholder with play icon
+            img = Image.new('RGB', config['size'], (32, 32, 32))
+            
+            # Save as WebP
+            output_buffer = io.BytesIO()
+            img.save(output_buffer, format='WEBP', quality=85, optimize=True)
+            output_buffer.seek(0)
+            
+            # Upload to S3
+            s3.put_object(
+                Bucket=BUCKET_NAME,
+                Key=config['path'],
+                Body=output_buffer.getvalue(),
+                ContentType='image/webp',
+                Metadata={
+                    'original-file': s3_key,
+                    'thumbnail-size': size_name,
+                    'dimensions': f"{config['size'][0]}x{config['size'][1]}",
+                    'user-id': user_id,
+                    'file-id': file_id,
+                    'format': 'webp',
+                    'type': 'video-placeholder'
+                }
+            )
+            
+            logger.info(f"Created {size_name} video placeholder: {config['path']}")
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error creating video thumbnails for {s3_key}: {str(e)}")
         return False

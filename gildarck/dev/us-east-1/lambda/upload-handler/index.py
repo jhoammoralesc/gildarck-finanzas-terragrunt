@@ -28,13 +28,39 @@ def lambda_handler(event, context):
     try:
         print(f"Received event: {json.dumps(event, default=str)}")
         
-        # Extract user ID from Cognito authorizer
-        user_id = extract_cognito_sub(event)
-        
         http_method = event['httpMethod']
         path = event['path']
         
+        # Handle OPTIONS requests for CORS
+        if http_method == 'OPTIONS':
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,DELETE,PATCH,PUT',
+                    'Access-Control-Allow-Credentials': 'false',
+                    'Content-Type': 'application/json'
+                },
+                'body': ''
+            }
+        
+        # Extract user ID from Cognito authorizer
+        user_id = extract_cognito_sub(event)
+        
         print(f"Processing: {http_method} {path} for user {user_id}")
+        
+        # Handle CORS preflight requests
+        if http_method == 'OPTIONS':
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+                    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
+                },
+                'body': ''
+            }
         
         if http_method == 'POST' and path.endswith('/upload/initiate'):
             return initiate_upload(event, user_id)
@@ -62,8 +88,10 @@ def error_response(status_code, message):
         'statusCode': status_code,
         'headers': {
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-            'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
+            'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token',
+            'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,DELETE,PATCH,PUT',
+            'Access-Control-Allow-Credentials': 'false',
+            'Content-Type': 'application/json'
         },
         'body': json.dumps({'error': message})
     }
@@ -73,8 +101,10 @@ def success_response(data):
         'statusCode': 200,
         'headers': {
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-            'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
+            'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token',
+            'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,DELETE,PATCH,PUT',
+            'Access-Control-Allow-Credentials': 'false',
+            'Content-Type': 'application/json'
         },
         'body': json.dumps(data)
     }

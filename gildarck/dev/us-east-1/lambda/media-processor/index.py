@@ -16,7 +16,7 @@ sqs = boto3.client('sqs')
 SQS_QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/496860676881/gildarck-thumbnail-queue'
 
 def extract_exif_date(bucket, key):
-    """Extract date from EXIF data using basic parsing"""
+    """Extract date from EXIF data and filename patterns"""
     try:
         # Get object metadata first
         response = s3.head_object(Bucket=bucket, Key=key)
@@ -27,36 +27,40 @@ def extract_exif_date(bucket, key):
             if 'creation-date' in metadata:
                 return datetime.fromisoformat(metadata['creation-date'])
         
-        # For now, try to extract date from filename patterns
+        # Try to extract date from filename patterns (common camera formats)
         filename = key.split('/')[-1]
         
-        # Common date patterns in filenames
+        # Enhanced date patterns for common camera/phone formats
         date_patterns = [
-            r'(\d{4})-(\d{2})-(\d{2})',  # YYYY-MM-DD
-            r'(\d{4})(\d{2})(\d{2})',    # YYYYMMDD
-            r'IMG-(\d{4})(\d{2})(\d{2})', # IMG-YYYYMMDD
-            r'(\d{2})-(\d{2})-(\d{4})',  # MM-DD-YYYY
+            r'IMG_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})',  # IMG_YYYYMMDD_HHMMSS
+            r'(\d{4})-(\d{2})-(\d{2})[T_\s](\d{2})[:-](\d{2})[:-](\d{2})',  # YYYY-MM-DD HH:MM:SS
+            r'(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})',      # YYYYMMDD_HHMMSS
+            r'IMG_(\d{4})(\d{2})(\d{2})',                        # IMG_YYYYMMDD
+            r'(\d{4})-(\d{2})-(\d{2})',                          # YYYY-MM-DD
+            r'(\d{4})(\d{2})(\d{2})',                            # YYYYMMDD
+            r'Screenshot.*(\d{4})-(\d{2})-(\d{2})',              # Screenshot YYYY-MM-DD
         ]
         
         for pattern in date_patterns:
             match = re.search(pattern, filename)
             if match:
                 groups = match.groups()
-                if len(groups) == 3:
-                    try:
-                        # Handle different date formats
-                        if len(groups[0]) == 4:  # YYYY first
-                            year, month, day = int(groups[0]), int(groups[1]), int(groups[2])
-                        else:  # MM-DD-YYYY format
-                            month, day, year = int(groups[0]), int(groups[1]), int(groups[2])
-                        
-                        # Validate date ranges
-                        if 1900 <= year <= 2030 and 1 <= month <= 12 and 1 <= day <= 31:
-                            extracted_date = datetime(year, month, day)
-                            print(f"Extracted date from filename: {extracted_date}")
-                            return extracted_date
-                    except ValueError:
+                try:
+                    if len(groups) >= 6:  # Full datetime
+                        year, month, day, hour, minute, second = map(int, groups[:6])
+                        extracted_date = datetime(year, month, day, hour, minute, second)
+                    elif len(groups) >= 3:  # Date only
+                        year, month, day = map(int, groups[:3])
+                        extracted_date = datetime(year, month, day)
+                    else:
                         continue
+                    
+                    # Validate date ranges
+                    if 2000 <= year <= 2030 and 1 <= month <= 12 and 1 <= day <= 31:
+                        print(f"Extracted date from filename: {extracted_date}")
+                        return extracted_date
+                except ValueError:
+                    continue
         
         print("No valid date found in filename or metadata")
         return None

@@ -29,6 +29,7 @@ locals {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
     "method.response.header.Access-Control-Allow-Methods" = "'GET,POST,OPTIONS,DELETE,PATCH,PUT'"
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+    "method.response.header.Access-Control-Allow-Credentials" = "'false'"
   }
 
   headers = {
@@ -36,6 +37,7 @@ locals {
     "Access-Control-Allow-Headers" = { "type" = "string" }
     "Access-Control-Allow-Methods" = { "type" = "string" }
     "Access-Control-Allow-Origin" = { "type" = "string" }
+    "Access-Control-Allow-Credentials" = { "type" = "string" }
   }
 
   integration_responses = {

@@ -40,6 +40,7 @@ inputs = {
         "s3:PutObject", 
         "s3:DeleteObject",
         "s3:CopyObject",
+        "s3:HeadObject",
         "s3:GetObjectMetadata",
         "s3:PutObjectMetadata"
       ]

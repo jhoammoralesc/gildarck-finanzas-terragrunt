@@ -61,12 +61,17 @@ def lambda_handler(event, context):
                 'body': ''
             }
         
-        # Parse request
+        # Parse request with better error handling
         body_str = event.get('body')
-        if body_str is None:
+        if not body_str:
             return error_response('Missing request body')
         
-        body = json.loads(body_str)
+        try:
+            body = json.loads(body_str)
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON in request body: {str(e)}")
+            return error_response('Invalid JSON in request body')
+        
         action = body.get('action')  # 'trash', 'delete', 'restore', 'list_trash'
         file_ids = body.get('file_ids', [])  # List of file IDs
         
@@ -134,7 +139,7 @@ def move_to_trash(user_id: str, file_ids: List[str]) -> List[Dict]:
             )
             
             if 'Item' not in response:
-                results.append({'file_id': file_id, 'success': False, 'error': 'File not found'})
+                results.append({'file_id': file_id, 'success': False, 'error': 'File not found in database'})
                 continue
             
             item = response['Item']
@@ -153,42 +158,28 @@ def move_to_trash(user_id: str, file_ids: List[str]) -> List[Dict]:
                 original_path = item.get('s3_key', '')
             
             if not original_path:
-                results.append({'file_id': file_id, 'success': False, 'error': 'No S3 path found'})
-                continue
-                
-            logger.info(f"Original path for {file_id}: {original_path}")
+                # Try to construct path from file_id and filename
+                filename = item.get('filename', file_id)
+                original_path = f"{user_id}/originals/{filename}"
+                logger.info(f"Constructed path for {file_id}: {original_path}")
             
-            # Check if file exists, try both original path and case variations
-            file_exists = False
-            actual_path = original_path
+            logger.info(f"Attempting to move {file_id} from path: {original_path}")
             
-            try:
-                s3_client.head_object(Bucket=BUCKET_NAME, Key=original_path)
-                file_exists = True
-            except:
-                # Try with different case extensions if original fails
-                if original_path.endswith('.jpg'):
-                    alt_path = original_path[:-4] + '.JPG'
-                elif original_path.endswith('.JPG'):
-                    alt_path = original_path[:-4] + '.jpg'
-                else:
-                    alt_path = None
-                
-                if alt_path:
-                    try:
-                        s3_client.head_object(Bucket=BUCKET_NAME, Key=alt_path)
-                        actual_path = alt_path
-                        file_exists = True
-                        logger.info(f"Found file with alternate extension: {actual_path}")
-                    except:
-                        pass
+            # Find the actual file in S3 with multiple fallback strategies
+            actual_path = find_actual_s3_path(user_id, file_id, original_path, item)
             
-            if not file_exists:
+            if not actual_path:
                 results.append({'file_id': file_id, 'success': False, 'error': 'File not found in S3'})
                 continue
             
             # Create trash path maintaining date structure
-            trash_path = actual_path.replace('/originals/', '/trash/')
+            if '/originals/' in actual_path:
+                trash_path = actual_path.replace('/originals/', '/trash/')
+            else:
+                # Fallback for files not in originals folder
+                trash_path = f"{user_id}/trash/{file_id}"
+            
+            logger.info(f"Moving {actual_path} to {trash_path}")
             
             # Copy to trash
             s3_client.copy_object(
@@ -230,7 +221,7 @@ def move_to_trash(user_id: str, file_ids: List[str]) -> List[Dict]:
                     trash_thumbnails[size] = trash_thumb_path
             
             # Update metadata - mark as trashed with consistent structure
-            updated_s3_paths = s3_paths.copy()
+            updated_s3_paths = s3_paths.copy() if s3_paths else {}
             updated_s3_paths['original'] = trash_path
             
             table.update_item(
@@ -246,13 +237,76 @@ def move_to_trash(user_id: str, file_ids: List[str]) -> List[Dict]:
             )
             
             results.append({'file_id': file_id, 'success': True, 'action': 'moved_to_trash'})
-            logger.info(f"Moved {file_id} to trash")
+            logger.info(f"Successfully moved {file_id} to trash")
             
         except Exception as e:
             logger.error(f"Error moving {file_id} to trash: {str(e)}")
             results.append({'file_id': file_id, 'success': False, 'error': str(e)})
     
     return results
+
+def find_actual_s3_path(user_id: str, file_id: str, original_path: str, item: Dict) -> str:
+    """Find the actual S3 path for a file using multiple strategies"""
+    
+    # Strategy 1: Try the original path as-is
+    try:
+        s3_client.head_object(Bucket=BUCKET_NAME, Key=original_path)
+        logger.info(f"Found file at original path: {original_path}")
+        return original_path
+    except:
+        pass
+    
+    # Strategy 2: Try case variations of the extension
+    if original_path.lower().endswith('.jpg'):
+        alt_path = original_path[:-4] + '.JPG'
+        try:
+            s3_client.head_object(Bucket=BUCKET_NAME, Key=alt_path)
+            logger.info(f"Found file with uppercase extension: {alt_path}")
+            return alt_path
+        except:
+            pass
+    elif original_path.upper().endswith('.JPG'):
+        alt_path = original_path[:-4] + '.jpg'
+        try:
+            s3_client.head_object(Bucket=BUCKET_NAME, Key=alt_path)
+            logger.info(f"Found file with lowercase extension: {alt_path}")
+            return alt_path
+        except:
+            pass
+    
+    # Strategy 3: Try to find file in organized structure
+    filename = item.get('filename', file_id)
+    if filename and filename != file_id:
+        # Try current year/month structure
+        current_date = datetime.now()
+        organized_path = f"{user_id}/originals/{current_date.year}/{current_date.month:02d}/{filename}"
+        try:
+            s3_client.head_object(Bucket=BUCKET_NAME, Key=organized_path)
+            logger.info(f"Found file in organized structure: {organized_path}")
+            return organized_path
+        except:
+            pass
+    
+    # Strategy 4: Try direct file_id as filename
+    direct_path = f"{user_id}/originals/{file_id}"
+    try:
+        s3_client.head_object(Bucket=BUCKET_NAME, Key=direct_path)
+        logger.info(f"Found file with direct file_id: {direct_path}")
+        return direct_path
+    except:
+        pass
+    
+    # Strategy 5: Try without originals folder
+    root_path = f"{user_id}/{filename}" if filename else f"{user_id}/{file_id}"
+    try:
+        s3_client.head_object(Bucket=BUCKET_NAME, Key=root_path)
+        logger.info(f"Found file in root user folder: {root_path}")
+        return root_path
+    except:
+        pass
+    
+    logger.error(f"Could not find file {file_id} in any expected location")
+    return None
 
 def permanent_delete(user_id: str, file_ids: List[str]) -> List[Dict]:
     """Permanently delete files - Google Photos style"""
