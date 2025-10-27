@@ -35,7 +35,7 @@ inputs = {
 
   local_existing_package = "lambda-simple-layer.zip"
   
-  # Use public Pillow layer
+  # Use public Pillow layer only
   layers = ["arn:aws:lambda:us-east-1:770693421928:layer:Klayers-p312-pillow:1"]
 
   attach_policy_statements = true

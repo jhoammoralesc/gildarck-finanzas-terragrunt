@@ -147,9 +147,10 @@ def create_image_thumbnails(user_id, s3_key, file_id):
         return False
 
 def create_video_thumbnails(user_id, s3_key, file_id):
-    """Create video thumbnails - placeholder for now"""
+    """Create better video thumbnails with gradient and play icon"""
     try:
-        # For now, create a simple placeholder thumbnail for videos
+        from PIL import ImageDraw
+        
         thumbnail_configs = {
             'small': {'size': (150, 150), 'path': f"{user_id}/thumbnails/small/{file_id}_s.webp"},
             'medium': {'size': (300, 300), 'path': f"{user_id}/thumbnails/medium/{file_id}_m.webp"},
@@ -157,8 +158,39 @@ def create_video_thumbnails(user_id, s3_key, file_id):
         }
         
         for size_name, config in thumbnail_configs.items():
-            # Create a dark placeholder with play icon
-            img = Image.new('RGB', config['size'], (32, 32, 32))
+            # Create a gradient background
+            img = Image.new('RGB', config['size'], (20, 20, 20))
+            draw = ImageDraw.Draw(img)
+            
+            # Create gradient effect
+            width, height = config['size']
+            for y in range(height):
+                # Gradient from dark to slightly lighter
+                color_value = int(20 + (y / height) * 30)
+                color = (color_value, color_value, color_value)
+                draw.line([(0, y), (width, y)], fill=color)
+            
+            # Draw play button circle
+            center_x, center_y = width // 2, height // 2
+            circle_radius = min(width, height) // 6
+            
+            # Draw circle background
+            circle_bbox = [
+                center_x - circle_radius,
+                center_y - circle_radius,
+                center_x + circle_radius,
+                center_y + circle_radius
+            ]
+            draw.ellipse(circle_bbox, fill=(80, 80, 80), outline=(120, 120, 120), width=2)
+            
+            # Draw play triangle
+            triangle_size = circle_radius // 2
+            triangle_points = [
+                (center_x - triangle_size//2, center_y - triangle_size),
+                (center_x - triangle_size//2, center_y + triangle_size),
+                (center_x + triangle_size, center_y)
+            ]
+            draw.polygon(triangle_points, fill=(200, 200, 200))
             
             # Save as WebP
             output_buffer = io.BytesIO()
@@ -178,11 +210,11 @@ def create_video_thumbnails(user_id, s3_key, file_id):
                     'user-id': user_id,
                     'file-id': file_id,
                     'format': 'webp',
-                    'type': 'video-placeholder'
+                    'type': 'video-thumbnail'
                 }
             )
             
-            logger.info(f"Created {size_name} video placeholder: {config['path']}")
+            logger.info(f"Created {size_name} video thumbnail: {config['path']}")
         
         return True
         
