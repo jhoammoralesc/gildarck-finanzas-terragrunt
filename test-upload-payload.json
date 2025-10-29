@@ -1,0 +1,9 @@
+{
+  "httpMethod": "POST",
+  "path": "/upload/initiate",
+  "headers": {
+    "Authorization": "Bearer YOUR_JWT_TOKEN",
+    "Content-Type": "application/json"
+  },
+  "body": "{\"fileName\":\"test-cancun.jpg\",\"fileSize\":2891199,\"contentType\":\"image/jpeg\"}"
+}

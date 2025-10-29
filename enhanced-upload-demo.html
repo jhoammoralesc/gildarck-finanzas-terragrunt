@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gildarck - Upload Masivo Estilo Google Photos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 50%, #fbbc05 75%, #ea4335 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            padding: 40px;
+        }
+
+        .upload-zone {
+            border: 3px dashed #4285f4;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .upload-zone:hover {
+            border-color: #34a853;
+            background: #f0fff4;
+            transform: translateY(-2px);
+        }
+
+        .upload-zone.dragover {
+            border-color: #34a853;
+            background: #e8f5e8;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            color: #4285f4;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .progress-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-stats {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .progress-bar-container {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4285f4, #34a853);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .progress-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .progress-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .progress-item-value {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #4285f4;
+            margin-bottom: 5px;
+        }
+
+        .progress-item-label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .file-size {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .file-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-uploading {
+            background: #cce5ff;
+            color: #0066cc;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-duplicate {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .results-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .results-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .results-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .result-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .result-value {
+            font-size: 2em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .result-value.success { color: #28a745; }
+        .result-value.error { color: #dc3545; }
+        .result-value.info { color: #17a2b8; }
+
+        .result-label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .uploading {
+            animation: pulse 2s infinite;
+        }
+
+        .btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #3367d6;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📸 Gildarck Upload Masivo</h1>
+            <p>Sistema de carga estilo Google Photos - Maneja de 1 a 10,000 archivos</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">☁️</div>
+                <div class="upload-text">Arrastra archivos aquí o haz clic para seleccionar</div>
+                <div class="upload-subtext">Soporta imágenes y videos • Máximo 10,000 archivos • Deduplicación automática</div>
+                <input type="file" id="fileInput" class="file-input" multiple accept="image/*,video/*">
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Streams Paralelos</label>
+                    <select id="parallelStreams">
+                        <option value="5">5 streams</option>
+                        <option value="10" selected>10 streams</option>
+                        <option value="15">15 streams</option>
+                        <option value="20">20 streams</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Tamaño de Batch</label>
+                    <select id="batchSize">
+                        <option value="25">25 archivos</option>
+                        <option value="50" selected>50 archivos</option>
+                        <option value="100">100 archivos</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Compresión (MB)</label>
+                    <input type="number" id="compressionThreshold" value="25" min="1" max="100">
+                </div>
+                <div class="control-group">
+                    <label>Acción</label>
+                    <button class="btn" id="startUpload" disabled>Iniciar Upload</button>
+                </div>
+            </div>
+
+            <div class="progress-section" id="progressSection">
+                <div class="progress-header">
+                    <div class="progress-title">Progreso del Upload</div>
+                    <div class="progress-stats" id="progressStats">0% completado</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-details">
+                    <div class="progress-item">
+                        <div class="progress-item-value" id="completedCount">0</div>
+                        <div class="progress-item-label">Completados</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-item-value" id="failedCount">0</div>
+                        <div class="progress-item-label">Fallidos</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-item-value" id="uploadSpeed">0 MB/s</div>
+                        <div class="progress-item-label">Velocidad</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-item-value" id="eta">--</div>
+                        <div class="progress-item-label">Tiempo Restante</div>
+                    </div>
+                </div>
+                <div class="file-list" id="fileList"></div>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="results-title">Resultados del Upload</div>
+                <div class="results-summary" id="resultsSummary"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="enhanced-upload-system.js"></script>
+    <script>
+        class UploadDemo {
+            constructor() {
+                this.selectedFiles = [];
+                this.uploader = null;
+                this.fileStatusMap = new Map();
+                this.initializeElements();
+                this.setupEventListeners();
+            }
+
+            initializeElements() {
+                this.uploadZone = document.getElementById('uploadZone');
+                this.fileInput = document.getElementById('fileInput');
+                this.startUploadBtn = document.getElementById('startUpload');
+                this.progressSection = document.getElementById('progressSection');
+                this.resultsSection = document.getElementById('resultsSection');
+                this.fileList = document.getElementById('fileList');
+            }
+
+            setupEventListeners() {
+                // Upload zone events
+                this.uploadZone.addEventListener('click', () => this.fileInput.click());
+                this.uploadZone.addEventListener('dragover', this.handleDragOver.bind(this));
+                this.uploadZone.addEventListener('dragleave', this.handleDragLeave.bind(this));
+                this.uploadZone.addEventListener('drop', this.handleDrop.bind(this));
+
+                // File input change
+                this.fileInput.addEventListener('change', this.handleFileSelect.bind(this));
+
+                // Start upload button
+                this.startUploadBtn.addEventListener('click', this.startUpload.bind(this));
+
+                // Progress events
+                window.addEventListener('uploadProgress', this.handleProgress.bind(this));
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+                this.uploadZone.classList.add('dragover');
+            }
+
+            handleDragLeave(e) {
+                e.preventDefault();
+                this.uploadZone.classList.remove('dragover');
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                this.uploadZone.classList.remove('dragover');
+                const files = Array.from(e.dataTransfer.files);
+                this.processFiles(files);
+            }
+
+            handleFileSelect(e) {
+                const files = Array.from(e.target.files);
+                this.processFiles(files);
+            }
+
+            processFiles(files) {
+                this.selectedFiles = files;
+                this.displayFileList();
+                this.startUploadBtn.disabled = files.length === 0;
+                
+                console.log(`📁 ${files.length} archivos seleccionados`);
+                
+                // Update upload zone text
+                if (files.length > 0) {
+                    this.uploadZone.querySelector('.upload-text').textContent = 
+                        `${files.length} archivos seleccionados`;
+                    this.uploadZone.querySelector('.upload-subtext').textContent = 
+                        'Haz clic en "Iniciar Upload" para comenzar';
+                }
+            }
+
+            displayFileList() {
+                this.fileList.innerHTML = '';
+                
+                this.selectedFiles.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-info">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${this.formatFileSize(file.size)}</div>
+                        </div>
+                        <div class="file-status status-pending" id="status-${index}">Pendiente</div>
+                    `;
+                    this.fileList.appendChild(fileItem);
+                    this.fileStatusMap.set(file.name, index);
+                });
+
+                this.progressSection.style.display = 'block';
+            }
+
+            async startUpload() {
+                if (this.selectedFiles.length === 0) return;
+
+                // Initialize uploader with current settings
+                this.uploader = new EnhancedUploadSystem({
+                    maxParallelStreams: parseInt(document.getElementById('parallelStreams').value),
+                    batchSize: parseInt(document.getElementById('batchSize').value),
+                    compressionThreshold: parseInt(document.getElementById('compressionThreshold').value) * 1024 * 1024
+                });
+
+                // Disable controls
+                this.startUploadBtn.disabled = true;
+                this.startUploadBtn.textContent = 'Subiendo...';
+                this.uploadZone.classList.add('uploading');
+
+                try {
+                    console.log('🚀 Iniciando upload masivo...');
+                    const result = await this.uploader.uploadFiles(this.selectedFiles, {
+                        userId: 'demo-user'
+                    });
+
+                    this.displayResults(result);
+                    console.log('✅ Upload completado:', result);
+
+                } catch (error) {
+                    console.error('❌ Error en upload:', error);
+                    alert('Error durante el upload: ' + error.message);
+                } finally {
+                    this.startUploadBtn.disabled = false;
+                    this.startUploadBtn.textContent = 'Iniciar Upload';
+                    this.uploadZone.classList.remove('uploading');
+                }
+            }
+
+            handleProgress(event) {
+                const progress = event.detail;
+                
+                // Update progress bar
+                document.getElementById('progressBar').style.width = `${progress.percentage}%`;
+                document.getElementById('progressStats').textContent = 
+                    `${progress.percentage}% completado (${progress.completed}/${progress.total})`;
+
+                // Update progress details
+                document.getElementById('completedCount').textContent = progress.completed;
+                document.getElementById('failedCount').textContent = progress.failed;
+                document.getElementById('uploadSpeed').textContent = 
+                    `${(progress.speed / 1024 / 1024).toFixed(1)} MB/s`;
+                document.getElementById('eta').textContent = 
+                    progress.eta > 0 ? `${Math.floor(progress.eta / 60)}:${(progress.eta % 60).toString().padStart(2, '0')}` : '--';
+
+                // Update file statuses (simplified for demo)
+                const completedPercentage = (progress.completed / progress.total) * 100;
+                this.selectedFiles.forEach((file, index) => {
+                    const statusElement = document.getElementById(`status-${index}`);
+                    if (statusElement) {
+                        if (index < progress.completed) {
+                            statusElement.textContent = 'Completado';
+                            statusElement.className = 'file-status status-success';
+                        } else if (index < progress.completed + (progress.total - progress.completed - progress.failed)) {
+                            statusElement.textContent = 'Subiendo';
+                            statusElement.className = 'file-status status-uploading';
+                        }
+                    }
+                });
+            }
+
+            displayResults(result) {
+                const summaryHTML = `
+                    <div class="result-item">
+                        <div class="result-value success">${result.successful}</div>
+                        <div class="result-label">Exitosos</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-value error">${result.failed}</div>
+                        <div class="result-label">Fallidos</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-value info">${result.duration.toFixed(1)}s</div>
+                        <div class="result-label">Duración</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-value info">${(result.averageSpeed / 1024 / 1024).toFixed(1)} MB/s</div>
+                        <div class="result-label">Velocidad Promedio</div>
+                    </div>
+                `;
+
+                document.getElementById('resultsSummary').innerHTML = summaryHTML;
+                this.resultsSection.style.display = 'block';
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        }
+
+        // Initialize demo when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new UploadDemo();
+            console.log('🎯 Demo de Upload Masivo inicializado');
+        });
+    </script>
+</body>
+</html>

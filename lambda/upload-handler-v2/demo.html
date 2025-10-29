@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gildarck Upload Handler v2.0 - Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .upload-zone { border: 2px dashed #ddd; padding: 40px; text-align: center; margin: 20px 0; border-radius: 8px; }
+        .upload-zone.dragover { border-color: #007bff; background: #f0f8ff; }
+        .file-list { margin: 20px 0; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 4px; }
+        .progress-bar { width: 200px; height: 20px; background: #f0f0f0; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #007bff; transition: width 0.3s; }
+        .status { padding: 5px 10px; border-radius: 4px; color: white; font-size: 12px; }
+        .status.pending { background: #6c757d; }
+        .status.uploading { background: #007bff; }
+        .status.processing { background: #ffc107; color: black; }
+        .status.complete { background: #28a745; }
+        .status.error { background: #dc3545; }
+        .controls { margin: 20px 0; text-align: center; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #007bff; }
+        .log { background: #f8f9fa; padding: 15px; border-radius: 8px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Gildarck Upload Handler v2.0</h1>
+            <p>Sistema de carga masiva con deduplicación, compresión y streams paralelos</p>
+        </div>
+
+        <div class="upload-zone" id="uploadZone">
+            <p>📁 Arrastra archivos aquí o haz clic para seleccionar</p>
+            <p>Soporta: Imágenes, Videos, Documentos (hasta 5GB por archivo)</p>
+            <input type="file" id="fileInput" multiple style="display: none;">
+        </div>
+
+        <div class="controls">
+            <button class="btn-primary" onclick="selectFiles()">Seleccionar Archivos</button>
+            <button class="btn-success" onclick="startUpload()" id="uploadBtn" disabled>Iniciar Carga</button>
+            <button class="btn-danger" onclick="clearFiles()">Limpiar</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalFiles">0</div>
+                <div>Archivos Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalSize">0 MB</div>
+                <div>Tamaño Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="duplicates">0</div>
+                <div>Duplicados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="uploadSpeed">0 MB/s</div>
+                <div>Velocidad</div>
+            </div>
+        </div>
+
+        <div class="file-list" id="fileList"></div>
+
+        <div class="log" id="logContainer">
+            <strong>📋 Log de Actividad:</strong><br>
+            Sistema iniciado - Esperando archivos...<br>
+        </div>
+    </div>
+
+    <script>
+        // Configuración
+        const API_BASE = 'https://api.dev.gildarck.com';
+        const MAX_PARALLEL_STREAMS = 10;
+        const CHUNK_SIZE = 8 * 1024 * 1024; // 8MB
+        
+        let selectedFiles = [];
+        let uploadStats = {
+            totalFiles: 0,
+            totalSize: 0,
+            duplicates: 0,
+            uploadSpeed: 0,
+            startTime: null
+        };
+
+        // Elementos DOM
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const logContainer = document.getElementById('logContainer');
+        const uploadBtn = document.getElementById('uploadBtn');
+
+        // Event Listeners
+        uploadZone.addEventListener('click', () => fileInput.click());
+        uploadZone.addEventListener('dragover', handleDragOver);
+        uploadZone.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files);
+            addFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            addFiles(files);
+        }
+
+        function selectFiles() {
+            fileInput.click();
+        }
+
+        function addFiles(files) {
+            files.forEach(file => {
+                if (!selectedFiles.find(f => f.name === file.name && f.size === file.size)) {
+                    selectedFiles.push({
+                        file: file,
+                        id: generateId(),
+                        status: 'pending',
+                        progress: 0,
+                        hash: null,
+                        isDuplicate: false
+                    });
+                }
+            });
+            
+            updateFileList();
+            updateStats();
+            uploadBtn.disabled = selectedFiles.length === 0;
+            log(`📁 ${files.length} archivos agregados. Total: ${selectedFiles.length}`);
+        }
+
+        function updateFileList() {
+            fileList.innerHTML = selectedFiles.map(item => `
+                <div class="file-item" id="file-${item.id}">
+                    <div>
+                        <strong>${item.file.name}</strong><br>
+                        <small>${formatSize(item.file.size)} - ${item.file.type || 'unknown'}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${item.progress}%"></div>
+                        </div>
+                        <div class="status ${item.status}">${getStatusText(item.status)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            uploadStats.totalFiles = selectedFiles.length;
+            uploadStats.totalSize = selectedFiles.reduce((sum, item) => sum + item.file.size, 0);
+            uploadStats.duplicates = selectedFiles.filter(item => item.isDuplicate).length;
+            
+            document.getElementById('totalFiles').textContent = uploadStats.totalFiles;
+            document.getElementById('totalSize').textContent = formatSize(uploadStats.totalSize);
+            document.getElementById('duplicates').textContent = uploadStats.duplicates;
+        }
+
+        async function startUpload() {
+            if (selectedFiles.length === 0) return;
+            
+            uploadBtn.disabled = true;
+            uploadStats.startTime = Date.now();
+            log(`🚀 Iniciando carga de ${selectedFiles.length} archivos...`);
+            
+            // Determinar estrategia
+            const strategy = selectedFiles.length <= 100 ? 'parallel' : 'batch';
+            log(`📋 Estrategia seleccionada: ${strategy}`);
+            
+            if (strategy === 'parallel') {
+                await uploadParallel();
+            } else {
+                await uploadBatch();
+            }
+        }
+
+        async function uploadParallel() {
+            const chunks = chunkArray(selectedFiles, MAX_PARALLEL_STREAMS);
+            
+            for (const chunk of chunks) {
+                const promises = chunk.map(item => uploadSingleFile(item));
+                await Promise.all(promises);
+            }
+            
+            log('✅ Carga paralela completada');
+        }
+
+        async function uploadBatch() {
+            // Implementar carga por lotes
+            log('🔄 Iniciando carga por lotes...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/upload/batch-initiate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        files: selectedFiles.map(item => ({
+                            filename: item.file.name,
+                            size: item.file.size,
+                            type: item.file.type
+                        })),
+                        user_id: 'demo-user'
+                    })
+                });
+                
+                const result = await response.json();
+                log(`📦 Lote creado: ${result.batch_id}`);
+                
+                // Procesar URLs presignadas
+                for (let i = 0; i < result.presigned_urls.length; i++) {
+                    const item = selectedFiles[i];
+                    const url = result.presigned_urls[i];
+                    await uploadToS3(item, url);
+                }
+                
+            } catch (error) {
+                log(`❌ Error en carga por lotes: ${error.message}`);
+            }
+        }
+
+        async function uploadSingleFile(item) {
+            try {
+                updateFileStatus(item.id, 'uploading', 0);
+                
+                // Calcular hash para deduplicación
+                const hash = await calculateHash(item.file);
+                item.hash = hash;
+                
+                // Verificar duplicado
+                const isDuplicate = await checkDuplicate(hash);
+                if (isDuplicate) {
+                    item.isDuplicate = true;
+                    updateFileStatus(item.id, 'complete', 100);
+                    log(`🔄 Archivo duplicado omitido: ${item.file.name}`);
+                    return;
+                }
+                
+                // Obtener URL presignada
+                const response = await fetch(`${API_BASE}/upload/presigned`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        filename: item.file.name,
+                        size: item.file.size,
+                        type: item.file.type,
+                        hash: hash,
+                        user_id: 'demo-user'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.duplicate) {
+                    item.isDuplicate = true;
+                    updateFileStatus(item.id, 'complete', 100);
+                    log(`🔄 Duplicado detectado: ${item.file.name}`);
+                    return;
+                }
+                
+                // Subir a S3
+                await uploadToS3(item, result.presigned_url);
+                
+            } catch (error) {
+                updateFileStatus(item.id, 'error', 0);
+                log(`❌ Error subiendo ${item.file.name}: ${error.message}`);
+            }
+        }
+
+        async function uploadToS3(item, presignedUrl) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const progress = (e.loaded / e.total) * 100;
+                        updateFileStatus(item.id, 'uploading', progress);
+                        updateUploadSpeed(e.loaded);
+                    }
+                });
+                
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200 || xhr.status === 204) {
+                        updateFileStatus(item.id, 'processing', 100);
+                        log(`✅ Subido: ${item.file.name}`);
+                        resolve();
+                    } else {
+                        reject(new Error(`HTTP ${xhr.status}`));
+                    }
+                });
+                
+                xhr.addEventListener('error', () => reject(new Error('Network error')));
+                
+                xhr.open('PUT', presignedUrl);
+                xhr.send(item.file);
+            });
+        }
+
+        async function calculateHash(file) {
+            // Simulación de hash SHA-256
+            return `sha256_${file.name}_${file.size}_${Date.now()}`;
+        }
+
+        async function checkDuplicate(hash) {
+            // Simulación de verificación de duplicados
+            return Math.random() < 0.1; // 10% probabilidad de duplicado
+        }
+
+        function updateFileStatus(fileId, status, progress) {
+            const item = selectedFiles.find(f => f.id === fileId);
+            if (item) {
+                item.status = status;
+                item.progress = progress;
+                updateFileList();
+                updateStats();
+            }
+        }
+
+        function updateUploadSpeed(bytesLoaded) {
+            if (uploadStats.startTime) {
+                const elapsed = (Date.now() - uploadStats.startTime) / 1000;
+                const speed = bytesLoaded / elapsed / 1024 / 1024; // MB/s
+                uploadStats.uploadSpeed = speed;
+                document.getElementById('uploadSpeed').textContent = `${speed.toFixed(1)} MB/s`;
+            }
+        }
+
+        function clearFiles() {
+            selectedFiles = [];
+            updateFileList();
+            updateStats();
+            uploadBtn.disabled = true;
+            log('🗑️ Archivos limpiados');
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                pending: 'Pendiente',
+                uploading: 'Subiendo',
+                processing: 'Procesando',
+                complete: 'Completo',
+                error: 'Error'
+            };
+            return texts[status] || status;
+        }
+
+        function formatSize(bytes) {
+            const units = ['B', 'KB', 'MB', 'GB'];
+            let size = bytes;
+            let unitIndex = 0;
+            
+            while (size >= 1024 && unitIndex < units.length - 1) {
+                size /= 1024;
+                unitIndex++;
+            }
+            
+            return `${size.toFixed(1)} ${units[unitIndex]}`;
+        }
+
+        function chunkArray(array, size) {
+            const chunks = [];
+            for (let i = 0; i < array.length; i += size) {
+                chunks.push(array.slice(i, i + size));
+            }
+            return chunks;
+        }
+
+        function generateId() {
+            return Math.random().toString(36).substr(2, 9);
+        }
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logContainer.innerHTML += `<br>[${timestamp}] ${message}`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Inicialización
+        log('🎯 Sistema de carga v2.0 listo');
+        log('📋 Funciones: Deduplicación, Compresión, 10 Streams Paralelos');
+    </script>
+</body>
+</html>

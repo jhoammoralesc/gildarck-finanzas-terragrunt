@@ -61,12 +61,18 @@ def lambda_handler(event, context):
                 path = resource_path.replace('/media/', '')
             elif resource_path.startswith('/media/file/'):
                 path = resource_path.replace('/media/', '')
+                # Also check for direct path parameters
+                if event.get('pathParameters') and event['pathParameters'].get('file_id'):
+                    file_id = event['pathParameters']['file_id']
+                    path = f"file/{file_id}"
             elif '/trash' in resource_path:
                 path = 'trash'
         
         method = event['httpMethod']
         
         print(f"Processing: {method} {path} for user {user_id}")
+        print(f"Resource path: {resource_path}")
+        print(f"Path parameters: {event.get('pathParameters', {})}")
         
         if method == 'GET':
             if path == 'list':
@@ -235,16 +241,61 @@ def get_thumbnail(user_id, file_id):
 
 def get_file_details(user_id, file_id):
     try:
+        print(f"Looking up file: user_id={user_id}, file_id={file_id}")
+        
         response = table.get_item(Key={'user_id': user_id, 'file_id': file_id})
         
         if 'Item' not in response:
-            return {
-                'statusCode': 404,
-                'headers': cors_headers(),
-                'body': json.dumps({'error': 'File not found'})
-            }
-        
-        item = response['Item']
+            print(f"File not found in DynamoDB: {file_id}")
+            
+            # Try to find the file by searching for partial matches
+            # This handles cases where the frontend might have stale file IDs
+            try:
+                query_response = table.query(
+                    KeyConditionExpression=Key('user_id').eq(user_id)
+                )
+                
+                items = query_response.get('Items', [])
+                print(f"Found {len(items)} total files for user")
+                
+                # Look for files that contain the requested file_id as a substring
+                # This handles cases where the file_id might have UUID prefixes
+                matching_files = []
+                for item in items:
+                    item_file_id = item.get('file_id', '')
+                    original_filename = item.get('original_filename', '')
+                    
+                    # Check if the requested file_id matches any part of the stored data
+                    if (file_id in item_file_id or 
+                        file_id in original_filename or
+                        item_file_id.endswith(file_id.split('_', 1)[-1] if '_' in file_id else file_id)):
+                        matching_files.append(item)
+                        print(f"Found potential match: {item_file_id}")
+                
+                if matching_files:
+                    # Use the first match
+                    item = matching_files[0]
+                    print(f"Using matched file: {item.get('file_id')}")
+                else:
+                    return {
+                        'statusCode': 404,
+                        'headers': cors_headers(),
+                        'body': json.dumps({
+                            'error': 'File not found',
+                            'requested_file_id': file_id,
+                            'user_id': user_id,
+                            'available_files': [item.get('file_id') for item in items[:5]]  # Show first 5 for debugging
+                        })
+                    }
+            except Exception as search_error:
+                print(f"Error during file search: {str(search_error)}")
+                return {
+                    'statusCode': 404,
+                    'headers': cors_headers(),
+                    'body': json.dumps({'error': 'File not found'})
+                }
+        else:
+            item = response['Item']
         
         # Use the original path from metadata
         original_path = item.get('s3_paths', {}).get('original', '')
@@ -253,11 +304,19 @@ def get_file_details(user_id, file_id):
             original_path = item.get('s3_key', '')
         
         if not original_path:
+            print(f"No S3 path found for file {file_id}")
+            print(f"Item s3_paths: {item.get('s3_paths', {})}")
             return {
                 'statusCode': 404,
                 'headers': cors_headers(),
-                'body': json.dumps({'error': 'File path not found'})
+                'body': json.dumps({
+                    'error': 'File path not found',
+                    'file_id': file_id,
+                    'available_paths': list(item.get('s3_paths', {}).keys())
+                })
             }
+        
+        print(f"Generating presigned URL for: {original_path}")
         
         download_url = s3.generate_presigned_url(
             'get_object',
@@ -271,7 +330,8 @@ def get_file_details(user_id, file_id):
             'body': json.dumps({
                 'file': item,
                 'download_url': download_url,
-                'file_id': file_id
+                'file_id': item.get('file_id'),  # Return the actual file_id from DB
+                'original_path': original_path
             }, default=str)
         }
     except Exception as e:

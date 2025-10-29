@@ -33,11 +33,11 @@ locals {
   }
 
   headers = {
-    "Content-Type" = { type = "string" }
-    "Access-Control-Allow-Headers" = { type = "string" }
-    "Access-Control-Allow-Methods" = { type = "string" }
-    "Access-Control-Allow-Origin" = { type = "string" }
-    "Access-Control-Allow-Credentials" = { type = "string" }
+    "Content-Type" = { "type" = "string" }
+    "Access-Control-Allow-Headers" = { "type" = "string" }
+    "Access-Control-Allow-Methods" = { "type" = "string" }
+    "Access-Control-Allow-Origin" = { "type" = "string" }
+    "Access-Control-Allow-Credentials" = { "type" = "string" }
   }
 
   integration_responses = {
@@ -64,14 +64,8 @@ locals {
     consumes = ["application/json"]
     x-amazon-apigateway-integration = {
       type = "MOCK"
-      httpMethod = "OPTIONS"
       requestTemplates = { "application/json" = "{\"statusCode\": 200}" }
-      responses = {
-        200 = { 
-          statusCode = 200
-          responseParameters = local.responseParameters
-        }
-      }
+      responses = local.integration_responses
       passthroughBehavior = "WHEN_NO_MATCH"
     }
     responses = local.responses
@@ -80,7 +74,9 @@ locals {
 
 dependencies {
   paths = [
-    "../../cognito/gildarck-user-pool"
+    "../../cognito/gildarck-user-pool",
+    "../../lambda/user-crud",
+    "../../lambda/upload-handler-v2"
   ]
 }
 
@@ -88,21 +84,21 @@ dependency "cognito" {
   config_path = "../../cognito/gildarck-user-pool"
 }
 
-# dependency "user_crud" {
-#   config_path = "../../lambda/user-crud"
-# }
+dependency "user_crud" {
+  config_path = "../../lambda/user-crud"
+}
 
-# dependency "upload_handler" {
-#   config_path = "../../lambda/upload-handler-v2"
-# }
+dependency "upload_handler" {
+  config_path = "../../lambda/upload-handler-v2"
+}
 
-# dependency "media_retrieval" {
-#   config_path = "../../lambda/media-retrieval"
-# }
+dependency "media_retrieval" {
+  config_path = "../../lambda/media-retrieval"
+}
 
-# dependency "media_delete" {
-#   config_path = "../../lambda/media-delete"
-# }
+dependency "media_delete" {
+  config_path = "../../lambda/media-delete"
+}
 
 inputs = {
   api_name = local.name
@@ -147,7 +143,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -156,7 +152,7 @@ inputs = {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
         }
@@ -168,7 +164,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -177,7 +173,7 @@ inputs = {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
         }
@@ -189,7 +185,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -198,7 +194,7 @@ inputs = {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
         }
@@ -210,7 +206,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -219,7 +215,7 @@ inputs = {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
         }
@@ -231,7 +227,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -240,7 +236,7 @@ inputs = {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
         }
@@ -253,7 +249,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -262,7 +258,7 @@ inputs = {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
         }
@@ -274,7 +270,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -283,7 +279,7 @@ inputs = {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
         }
@@ -295,7 +291,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -304,13 +300,13 @@ inputs = {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             },
             {
               name     = "Authorization"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
           security = [
@@ -324,7 +320,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -333,13 +329,13 @@ inputs = {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             },
             {
               name     = "Authorization"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
           security = [
@@ -356,7 +352,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -365,19 +361,19 @@ inputs = {
               name     = "id"
               in       = "path"
               required = true
-              schema = { type = "string" }
+              type     = "string"
             },
             {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             },
             {
               name     = "Authorization"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
           security = [
@@ -391,7 +387,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -400,19 +396,19 @@ inputs = {
               name     = "id"
               in       = "path"
               required = true
-              schema = { type = "string" }
+              type     = "string"
             },
             {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             },
             {
               name     = "Authorization"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
           security = [
@@ -426,7 +422,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            uri = dependency.user_crud.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -435,19 +431,19 @@ inputs = {
               name     = "id"
               in       = "path"
               required = true
-              schema = { type = "string" }
+              type     = "string"
             },
             {
               name     = "Accept-Language"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             },
             {
               name     = "Authorization"
               in       = "header"
               required = false
-              schema = { type = "string" }
+              type     = "string"
             }
           ]
           security = [
@@ -466,7 +462,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-upload-handler-v2-dev/invocations"
+            uri = dependency.upload_handler.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -480,21 +476,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-upload-handler-v2-dev/invocations"
-            passthroughBehavior = "WHEN_NO_MATCH"
-          }
-          responses = local.responses
-        }
-        options = local.options
-      }
-
-      "/upload/batch-chunk-urls" = {
-        post = {
-          security = [{ CognitoAuthorizer = [] }]
-          x-amazon-apigateway-integration = {
-            type = "AWS_PROXY"
-            httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-upload-handler-v2-dev/invocations"
+            uri = dependency.upload_handler.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -508,7 +490,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-upload-handler-v2-dev/invocations"
+            uri = dependency.upload_handler.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -522,7 +504,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-upload-handler-v2-dev/invocations"
+            uri = dependency.upload_handler.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -536,7 +518,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-upload-handler-v2-dev/invocations"
+            uri = dependency.upload_handler.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -549,7 +531,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-upload-handler-v2-dev/invocations"
+            uri = dependency.upload_handler.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -563,7 +545,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-upload-handler-v2-dev/invocations"
+            uri = dependency.upload_handler.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -577,7 +559,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-upload-handler-v2-dev/invocations"
+            uri = dependency.upload_handler.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -591,7 +573,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-media-retrieval/invocations"
+            uri = dependency.media_retrieval.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -606,7 +588,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-media-retrieval/invocations"
+            uri = dependency.media_retrieval.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -621,7 +603,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-media-retrieval/invocations"
+            uri = dependency.media_retrieval.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -637,7 +619,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-media-delete/invocations"
+            uri = dependency.media_delete.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -651,7 +633,7 @@ inputs = {
           x-amazon-apigateway-integration = {
             type = "AWS_PROXY"
             httpMethod = "POST"
-            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-media-retrieval/invocations"
+            uri = dependency.media_retrieval.outputs.lambda_function_arn_static
             passthroughBehavior = "WHEN_NO_MATCH"
           }
           responses = local.responses
@@ -666,28 +648,28 @@ inputs = {
     user_crud = {
       statement_id  = "AllowExecutionFromAPIGateway"
       action        = "lambda:InvokeFunction"
-      function_name = "gildarck-user-crud"
+      function_name = dependency.user_crud.outputs.lambda_function_name
       principal     = "apigateway.amazonaws.com"
       source_arn    = "arn:aws:execute-api:us-east-1:*:*/*/*"
     }
     upload_handler = {
       statement_id  = "AllowExecutionFromAPIGateway"
       action        = "lambda:InvokeFunction"
-      function_name = "gildarck-upload-handler-v2-dev"
+      function_name = dependency.upload_handler.outputs.lambda_function_name
       principal     = "apigateway.amazonaws.com"
       source_arn    = "arn:aws:execute-api:us-east-1:*:*/*/*"
     }
     media_retrieval = {
       statement_id  = "AllowExecutionFromAPIGateway"
       action        = "lambda:InvokeFunction"
-      function_name = "gildarck-media-retrieval"
+      function_name = dependency.media_retrieval.outputs.lambda_function_name
       principal     = "apigateway.amazonaws.com"
       source_arn    = "arn:aws:execute-api:us-east-1:*:*/*/*"
     }
     media_delete = {
       statement_id  = "AllowExecutionFromAPIGateway"
       action        = "lambda:InvokeFunction"
-      function_name = "gildarck-media-delete"
+      function_name = dependency.media_delete.outputs.lambda_function_name
       principal     = "apigateway.amazonaws.com"
       source_arn    = "arn:aws:execute-api:us-east-1:*:*/*/*"
     }

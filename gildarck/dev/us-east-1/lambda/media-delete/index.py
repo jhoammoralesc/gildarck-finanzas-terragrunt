@@ -275,7 +275,7 @@ def find_actual_s3_path(user_id: str, file_id: str, original_path: str, item: Di
             pass
     
     # Strategy 3: Try to find file in organized structure
-    filename = item.get('filename', file_id)
+    filename = item.get('original_filename', item.get('filename', file_id))
     if filename and filename != file_id:
         # Try current year/month structure
         current_date = datetime.now()
@@ -287,16 +287,55 @@ def find_actual_s3_path(user_id: str, file_id: str, original_path: str, item: Di
         except:
             pass
     
-    # Strategy 4: Try direct file_id as filename
-    direct_path = f"{user_id}/originals/{file_id}"
-    try:
-        s3_client.head_object(Bucket=BUCKET_NAME, Key=direct_path)
-        logger.info(f"Found file with direct file_id: {direct_path}")
-        return direct_path
-    except:
-        pass
+    # Strategy 4: Try direct file_id as filename with common extensions
+    for ext in ['jpg', 'JPG', 'png', 'PNG', 'mp4', 'MP4', 'webp', 'WEBP']:
+        direct_path = f"{user_id}/originals/{file_id}.{ext}"
+        try:
+            s3_client.head_object(Bucket=BUCKET_NAME, Key=direct_path)
+            logger.info(f"Found file with direct file_id: {direct_path}")
+            return direct_path
+        except:
+            pass
     
-    # Strategy 5: Try without originals folder
+    # Strategy 5: Search by listing S3 objects with file_id prefix
+    try:
+        logger.info(f"Searching S3 for files matching {file_id}")
+        
+        # Search in originals folder
+        response = s3_client.list_objects_v2(
+            Bucket=BUCKET_NAME,
+            Prefix=f"{user_id}/originals/",
+            MaxKeys=1000
+        )
+        
+        if 'Contents' in response:
+            for obj in response['Contents']:
+                key = obj['Key']
+                # Check if the key contains our file_id
+                if file_id in key:
+                    logger.info(f"Found matching file in S3 listing: {key}")
+                    return key
+        
+        # Also search in root user folder
+        response = s3_client.list_objects_v2(
+            Bucket=BUCKET_NAME,
+            Prefix=f"{user_id}/",
+            MaxKeys=1000
+        )
+        
+        if 'Contents' in response:
+            for obj in response['Contents']:
+                key = obj['Key']
+                # Check if the key contains our file_id and is not a thumbnail
+                if file_id in key and '/thumbnails/' not in key and '/trash/' not in key:
+                    logger.info(f"Found matching file in user folder: {key}")
+                    return key
+                    
+    except Exception as e:
+        logger.warning(f"Error searching S3 for {file_id}: {str(e)}")
+    
+    # Strategy 6: Try without originals folder
+    filename = item.get('original_filename', item.get('filename', file_id))
     root_path = f"{user_id}/{filename}" if filename else f"{user_id}/{file_id}"
     try:
         s3_client.head_object(Bucket=BUCKET_NAME, Key=root_path)
