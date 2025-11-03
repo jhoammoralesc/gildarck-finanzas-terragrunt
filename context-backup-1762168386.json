@@ -1,6 +1,6 @@
 {
-  "timestamp": "2025-11-03T11:13:04.3NZ",
-  "session_id": "1762168384",
+  "timestamp": "2025-11-03T11:13:03.3NZ",
+  "session_id": "1762168383",
   "current_directory": "/Users/jhoam.morales/Documents/gildarck/infrastructure-iac-terragrunt",
   "last_command": "",
   "git_status": " M AUTO_CONTEXT.json
@@ -21,6 +21,7 @@
  M gildarck/dev/us-east-1/lambda/user-crud/index.py
  M gildarck/dev/us-east-1/lambda/user-crud/lambda.zip
 ?? cleanup-dynamodb.py
+?? context-backup-1762168207.json
 ?? context-backup-1762168211.json
 ?? context-backup-1762168217.json
 ?? context-backup-1762168218.json
@@ -30,7 +31,6 @@
 ?? context-backup-1762168237.json
 ?? context-backup-1762168240.json
 ?? context-backup-1762168380.json
-?? context-backup-1762168384.json
 ?? token-refresh-service.js",
   "aws_profile": "my-student-user",
   "infrastructure_state": {

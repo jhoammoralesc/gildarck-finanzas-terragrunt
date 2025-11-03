@@ -247,6 +247,27 @@ inputs = {
         options = local.options
       }
 
+      "/auth/refresh" = {
+        post = {
+          x-amazon-apigateway-integration = {
+            type = "AWS_PROXY"
+            httpMethod = "POST"
+            uri = "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:496860676881:function:gildarck-user-crud/invocations"
+            passthroughBehavior = "WHEN_NO_MATCH"
+          }
+          responses = local.responses
+          parameters = [
+            {
+              name     = "Accept-Language"
+              in       = "header"
+              required = false
+              schema = { type = "string" }
+            }
+          ]
+        }
+        options = local.options
+      }
+
       # Legacy endpoints - Keep for backward compatibility but redirect to lambda
       "/platform/v1/account/register" = {
         post = {

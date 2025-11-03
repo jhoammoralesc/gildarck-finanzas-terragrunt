@@ -6,7 +6,12 @@ import hashlib
 import base64
 import string
 import secrets
+import logging
 from botocore.exceptions import ClientError
+
+# Configure logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 # Initialize clients
 cognito_client = boto3.client('cognito-idp', region_name=os.environ['REGION'])
@@ -160,6 +165,8 @@ def lambda_handler(event, context):
             return set_new_password(event)
         elif path == '/auth/logout' and http_method == 'POST':
             return logout_user(event)
+        elif path == '/auth/refresh' and http_method == 'POST':
+            return refresh_token(event)
         # Legacy auth endpoints (redirect to new functions)
         elif path == '/platform/v1/account/login' and http_method == 'POST':
             return login_user(event)
@@ -466,6 +473,45 @@ def logout_user(event):
             'body': json.dumps({
                 'success': True,
                 'message': 'Logout successful'
+            })
+        }
+
+def refresh_token(event):
+    """Refresh access token using refresh token - Google Photos style"""
+    try:
+        body = json.loads(event['body'])
+        refresh_token = body['refreshToken']
+        
+        response = cognito_client.initiate_auth(
+            ClientId=CLIENT_ID,
+            AuthFlow='REFRESH_TOKEN_AUTH',
+            AuthParameters={
+                'REFRESH_TOKEN': refresh_token
+            }
+        )
+        
+        return {
+            'statusCode': 200,
+            'headers': cors_headers(event),
+            'body': json.dumps({
+                'success': True,
+                'message': 'Token refreshed successfully',
+                'data': {
+                    'access_token': response['AuthenticationResult']['AccessToken'],
+                    'id_token': response['AuthenticationResult']['IdToken'],
+                    'expires_in': response['AuthenticationResult']['ExpiresIn']
+                }
+            })
+        }
+        
+    except Exception as e:
+        logger.error(f"Token refresh error: {str(e)}")
+        return {
+            'statusCode': 401,
+            'headers': cors_headers(event),
+            'body': json.dumps({
+                'success': False,
+                'message': f'Token refresh failed: {str(e)}'
             })
         }
 

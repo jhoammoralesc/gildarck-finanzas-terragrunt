@@ -188,9 +188,16 @@ def process_organized_file(bucket, key, file_content=None, actual_date=None):
     # Calculate hash
     file_hash = hashlib.sha256(file_content).hexdigest()
     
-    # Determine media type
-    media_type = 'image' if content_type.startswith('image/') else \
-                'video' if content_type.startswith('video/') else 'document'
+    # Determine media type (improved detection)
+    image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'tif']
+    video_extensions = ['mp4', 'avi', 'mov', 'mkv', 'wmv', 'flv', 'webm', 'm4v']
+    
+    if content_type.startswith('image/') or extension.lower() in image_extensions:
+        media_type = 'image'
+    elif content_type.startswith('video/') or extension.lower() in video_extensions:
+        media_type = 'video'
+    else:
+        media_type = 'document'
     
     # AI analysis for images
     ai_analysis = {}
