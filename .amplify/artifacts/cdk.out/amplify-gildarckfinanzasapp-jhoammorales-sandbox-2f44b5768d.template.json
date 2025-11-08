@@ -1,0 +1,890 @@
+{
+ "Description": "{\"createdOn\":\"Mac\",\"createdBy\":\"AmplifySandbox\",\"createdWith\":\"1.17.0\",\"stackType\":\"root\",\"metadata\":{}}",
+ "Metadata": {
+  "AWS::Amplify::Platform": {
+   "version": "1",
+   "stackOutputs": [
+    "deploymentType",
+    "region"
+   ]
+  },
+  "AWS::Amplify::Auth": {
+   "version": "1",
+   "stackOutputs": [
+    "userPoolId",
+    "webClientId",
+    "identityPoolId",
+    "authRegion",
+    "allowUnauthenticatedIdentities",
+    "signupAttributes",
+    "usernameAttributes",
+    "verificationMechanisms",
+    "passwordPolicyMinLength",
+    "passwordPolicyRequirements",
+    "mfaConfiguration",
+    "mfaTypes",
+    "socialProviders",
+    "oauthCognitoDomain",
+    "oauthScope",
+    "oauthRedirectSignIn",
+    "oauthRedirectSignOut",
+    "oauthResponseType",
+    "oauthClientId",
+    "groups"
+   ]
+  },
+  "AWS::Amplify::GraphQL": {
+   "version": "1",
+   "stackOutputs": [
+    "awsAppsyncApiId",
+    "awsAppsyncApiEndpoint",
+    "awsAppsyncAuthenticationType",
+    "awsAppsyncRegion",
+    "amplifyApiModelSchemaS3Uri",
+    "awsAppsyncApiKey",
+    "awsAppsyncAdditionalAuthenticationTypes"
+   ]
+  },
+  "AWS::Amplify::Function": {
+   "version": "1",
+   "stackOutputs": [
+    "definedFunctions"
+   ]
+  },
+  "AWS::Amplify::Custom": {
+   "version": "1",
+   "stackOutputs": [
+    "customOutputs"
+   ]
+  },
+  "AWS::Amplify::Storage": {
+   "version": "1",
+   "stackOutputs": [
+    "buckets",
+    "storageRegion",
+    "bucketName"
+   ]
+  }
+ },
+ "Outputs": {
+  "deploymentType": {
+   "Value": "sandbox"
+  },
+  "region": {
+   "Value": {
+    "Ref": "AWS::Region"
+   }
+  },
+  "userPoolId": {
+   "Value": {
+    "Fn::GetAtt": [
+     "auth179371D7",
+     "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthUserPoolB1DE2EA4Ref"
+    ]
+   }
+  },
+  "webClientId": {
+   "Value": {
+    "Fn::GetAtt": [
+     "auth179371D7",
+     "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthUserPoolAppClient0D11828DRef"
+    ]
+   }
+  },
+  "identityPoolId": {
+   "Value": {
+    "Fn::GetAtt": [
+     "auth179371D7",
+     "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref"
+    ]
+   }
+  },
+  "authRegion": {
+   "Value": {
+    "Ref": "AWS::Region"
+   }
+  },
+  "allowUnauthenticatedIdentities": {
+   "Value": "true"
+  },
+  "signupAttributes": {
+   "Value": "[\"email\"]"
+  },
+  "usernameAttributes": {
+   "Value": "[\"email\"]"
+  },
+  "verificationMechanisms": {
+   "Value": "[\"email\"]"
+  },
+  "passwordPolicyMinLength": {
+   "Value": "8"
+  },
+  "passwordPolicyRequirements": {
+   "Value": "[\"REQUIRES_NUMBERS\",\"REQUIRES_LOWERCASE\",\"REQUIRES_UPPERCASE\",\"REQUIRES_SYMBOLS\"]"
+  },
+  "mfaConfiguration": {
+   "Value": "OFF"
+  },
+  "mfaTypes": {
+   "Value": "[]"
+  },
+  "socialProviders": {
+   "Value": ""
+  },
+  "oauthCognitoDomain": {
+   "Value": ""
+  },
+  "oauthScope": {
+   "Value": "[\"profile\",\"phone\",\"email\",\"openid\",\"aws.cognito.signin.user.admin\"]"
+  },
+  "oauthRedirectSignIn": {
+   "Value": "https://example.com"
+  },
+  "oauthRedirectSignOut": {
+   "Value": ""
+  },
+  "oauthResponseType": {
+   "Value": "code"
+  },
+  "oauthClientId": {
+   "Value": {
+    "Fn::GetAtt": [
+     "auth179371D7",
+     "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthUserPoolAppClient0D11828DRef"
+    ]
+   }
+  },
+  "groups": {
+   "Value": "[]"
+  },
+  "awsAppsyncApiId": {
+   "Value": {
+    "Fn::GetAtt": [
+     "data7552DF31",
+     "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    ]
+   }
+  },
+  "awsAppsyncApiEndpoint": {
+   "Value": {
+    "Fn::GetAtt": [
+     "data7552DF31",
+     "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AGraphQLUrl"
+    ]
+   }
+  },
+  "awsAppsyncAuthenticationType": {
+   "Value": "API_KEY"
+  },
+  "awsAppsyncRegion": {
+   "Value": {
+    "Ref": "AWS::Region"
+   }
+  },
+  "amplifyApiModelSchemaS3Uri": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "s3://",
+      {
+       "Fn::Select": [
+        0,
+        {
+         "Fn::Split": [
+          "/",
+          {
+           "Fn::Select": [
+            5,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Fn::GetAtt": [
+                "data7552DF31",
+                "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataAmplifyCodegenAssetsAmplifyCodegenAssetsDeploymentCustomResource1536MiB9B2B7FC7DestinationBucketArn"
+               ]
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      "/model-schema.graphql"
+     ]
+    ]
+   }
+  },
+  "awsAppsyncApiKey": {
+   "Value": {
+    "Fn::GetAtt": [
+     "data7552DF31",
+     "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPIDefaultApiKey1C5B56E8ApiKey"
+    ]
+   }
+  },
+  "awsAppsyncAdditionalAuthenticationTypes": {
+   "Value": "AMAZON_COGNITO_USER_POOLS,AWS_IAM"
+  },
+  "definedFunctions": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "[\"",
+      {
+       "Fn::GetAtt": [
+        "function1351588B",
+        "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BRef"
+       ]
+      },
+      "\"]"
+     ]
+    ]
+   }
+  },
+  "customOutputs": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "{\"custom\":{\"API\":{\"FinanzasRestApi\":{\"endpoint\":\"https://",
+      {
+       "Fn::GetAtt": [
+        "apistack7B433BC7",
+        "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi055A3A5CRef"
+       ]
+      },
+      ".execute-api.",
+      {
+       "Ref": "AWS::Region"
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Fn::GetAtt": [
+        "apistack7B433BC7",
+        "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApiDeploymentStageprod18824536Ref"
+       ]
+      },
+      "/\",\"region\":\"",
+      {
+       "Ref": "AWS::Region"
+      },
+      "\",\"apiName\":\"FinanzasRestApi\"}}},\"version\":\"1.4\"}"
+     ]
+    ]
+   }
+  },
+  "storageRegion": {
+   "Value": {
+    "Ref": "AWS::Region"
+   }
+  },
+  "bucketName": {
+   "Value": {
+    "Fn::GetAtt": [
+     "storage0EC3F24A",
+     "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dstoragefinanzasStorageBucketE0F6067CRef"
+    ]
+   }
+  },
+  "buckets": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "[\"{\\\"name\\\":\\\"finanzasStorage\\\",\\\"bucketName\\\":\\\"",
+      {
+       "Fn::GetAtt": [
+        "storage0EC3F24A",
+        "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dstoragefinanzasStorageBucketE0F6067CRef"
+       ]
+      },
+      "\\\",\\\"storageRegion\\\":\\\"",
+      {
+       "Ref": "AWS::Region"
+      },
+      "\\\",\\\"paths\\\":{\\\"photos/*\\\":{\\\"authenticated\\\":[\\\"get\\\",\\\"list\\\",\\\"write\\\",\\\"delete\\\"],\\\"guest\\\":[\\\"get\\\",\\\"list\\\",\\\"write\\\"]},\\\"receipts/*\\\":{\\\"authenticated\\\":[\\\"get\\\",\\\"list\\\",\\\"write\\\",\\\"delete\\\"],\\\"guest\\\":[\\\"get\\\",\\\"list\\\",\\\"write\\\"]}}}\"]"
+     ]
+    ]
+   }
+  }
+ },
+ "Resources": {
+  "auth179371D7": {
+   "Type": "AWS::CloudFormation::Stack",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ],
+    "TemplateURL": {
+     "Fn::Join": [
+      "",
+      [
+       "https://s3.",
+       {
+        "Ref": "AWS::Region"
+       },
+       ".",
+       {
+        "Ref": "AWS::URLSuffix"
+       },
+       "/",
+       {
+        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+       },
+       "/c2b37c85e29ec4101d6dcf6ed0b34b5a6f78135addd4778a7544aefd342c88e2.json"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/auth.NestedStack/auth.NestedStackResource",
+    "aws:asset:path": "amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauth9F49B043.nested.template.json",
+    "aws:asset:property": "TemplateURL"
+   }
+  },
+  "data7552DF31": {
+   "Type": "AWS::CloudFormation::Stack",
+   "Properties": {
+    "Parameters": {
+     "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthUserPoolB1DE2EA4Ref": {
+      "Fn::GetAtt": [
+       "auth179371D7",
+       "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthUserPoolB1DE2EA4Ref"
+      ]
+     },
+     "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref": {
+      "Fn::GetAtt": [
+       "auth179371D7",
+       "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref"
+      ]
+     },
+     "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref": {
+      "Fn::GetAtt": [
+       "auth179371D7",
+       "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref"
+      ]
+     },
+     "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref": {
+      "Fn::GetAtt": [
+       "auth179371D7",
+       "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref"
+      ]
+     }
+    },
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ],
+    "TemplateURL": {
+     "Fn::Join": [
+      "",
+      [
+       "https://s3.",
+       {
+        "Ref": "AWS::Region"
+       },
+       ".",
+       {
+        "Ref": "AWS::URLSuffix"
+       },
+       "/",
+       {
+        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+       },
+       "/453649bc60334bb353dc5925df24ab70695f0a5884e48405b9f7fda70bdd66b6.json"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data.NestedStack/data.NestedStackResource",
+    "aws:asset:path": "amplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddata9C7F65A0.nested.template.json",
+    "aws:asset:property": "TemplateURL"
+   }
+  },
+  "storage0EC3F24A": {
+   "Type": "AWS::CloudFormation::Stack",
+   "Properties": {
+    "Parameters": {
+     "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref": {
+      "Fn::GetAtt": [
+       "auth179371D7",
+       "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref"
+      ]
+     },
+     "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref": {
+      "Fn::GetAtt": [
+       "auth179371D7",
+       "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref"
+      ]
+     }
+    },
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ],
+    "TemplateURL": {
+     "Fn::Join": [
+      "",
+      [
+       "https://s3.",
+       {
+        "Ref": "AWS::Region"
+       },
+       ".",
+       {
+        "Ref": "AWS::URLSuffix"
+       },
+       "/",
+       {
+        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+       },
+       "/fa9b9972d7dc2b8a121310090a04921d05f7fea89ebd2e2d6dd160e6006af8bd.json"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/storage.NestedStack/storage.NestedStackResource",
+    "aws:asset:path": "amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dstorageF95A0269.nested.template.json",
+    "aws:asset:property": "TemplateURL"
+   }
+  },
+  "function1351588B": {
+   "Type": "AWS::CloudFormation::Stack",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ],
+    "TemplateURL": {
+     "Fn::Join": [
+      "",
+      [
+       "https://s3.",
+       {
+        "Ref": "AWS::Region"
+       },
+       ".",
+       {
+        "Ref": "AWS::URLSuffix"
+       },
+       "/",
+       {
+        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+       },
+       "/117c030c47d59a9a6daa32948e812c7257cd229ebf6bf74dd0474962f94fe699.json"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/function.NestedStack/function.NestedStackResource",
+    "aws:asset:path": "amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunction52BDC7AC.nested.template.json",
+    "aws:asset:property": "TemplateURL"
+   }
+  },
+  "apistack7B433BC7": {
+   "Type": "AWS::CloudFormation::Stack",
+   "Properties": {
+    "Parameters": {
+     "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionNestedStackfunctionNestedStackResourceAD5A2358Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn": {
+      "Fn::GetAtt": [
+       "function1351588B",
+       "Outputs.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn"
+      ]
+     }
+    },
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ],
+    "TemplateURL": {
+     "Fn::Join": [
+      "",
+      [
+       "https://s3.",
+       {
+        "Ref": "AWS::Region"
+       },
+       ".",
+       {
+        "Ref": "AWS::URLSuffix"
+       },
+       "/",
+       {
+        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+       },
+       "/cad9f430e456ad7eb3ff13a6ef09108f6ed0b8ef85f92901cabb3053fcd00f09.json"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack.NestedStack/api-stack.NestedStackResource",
+    "aws:asset:path": "amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistack9874D9A8.nested.template.json",
+    "aws:asset:property": "TemplateURL"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/zPSMzIy0jNQTCwv1k1OydbNyUzSqw4uSUzO1nFOy/MvLSkoLQGxwEK1Onn5Kal6WcX6ZUZGeobmegaKWcWZmbpFpXklmbmpekEQGgATYRatVAAAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/CDKMetadata/Default"
+   },
+   "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Conditions": {
+  "CDKMetadataAvailable": {
+   "Fn::Or": [
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "af-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-3"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-4"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-northwest-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-2"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "il-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "sa-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-1"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Equals": [
+      {
+       "Ref": "AWS::Region"
+      },
+      "us-west-2"
+     ]
+    }
+   ]
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

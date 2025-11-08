@@ -59,6 +59,39 @@ const transactionsPath = FinanzasRestApi.root.addResource("transactions", {
 transactionsPath.addMethod("GET", lambdaIntegration);
 transactionsPath.addMethod("POST", lambdaIntegration);
 
+// Permisos para Textract
+backend.ImageProcessorFunction.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: [
+      "textract:AnalyzeDocument",
+      "textract:DetectDocumentText",
+    ],
+    resources: ["*"],
+  })
+);
+
+// Permisos para DynamoDB
+backend.ImageProcessorFunction.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: [
+      "dynamodb:PutItem",
+      "dynamodb:GetItem",
+      "dynamodb:UpdateItem",
+      "dynamodb:Query",
+      "dynamodb:Scan",
+    ],
+    resources: ["arn:aws:dynamodb:*:*:table/finanzas_usuarios"],
+  })
+);
+
+// Permisos para S3 (bucket existente)
+backend.ImageProcessorFunction.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    actions: ["s3:GetObject"],
+    resources: ["arn:aws:s3:::gildarck-bucket-audio-transcribe-dev/*"],
+  })
+);
+
 backend.addOutput({
   custom: {
     API: {

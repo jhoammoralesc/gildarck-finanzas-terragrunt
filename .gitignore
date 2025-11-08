@@ -1,26 +1,46 @@
-# Lambda Dependencies - Heavy Files
-**/lambda-pillow-*.zip
-**/pillow-layer.zip
-**/PIL/
-**/Pillow.libs/
-**/python/
+# Dependencies
+node_modules/
+.npm/
 
-# Terraform & Terragrunt
-**/.terraform/
-**/.terraform.lock.hcl
-**/.terragrunt-cache/
-**/terraform.tfstate*
+# Amplify
+amplify/backend/amplify-meta.json
+amplify/backend/awscloudformation/
+amplify/backend/.temp/
+amplify/#current-cloud-backend/
+amplify/.config/
 
-# Test Files
-test-*.sh
-/tmp/
+# Build outputs
+dist/
+build/
 
-# macOS
-.DS_Store
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Logs
-*.log
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp

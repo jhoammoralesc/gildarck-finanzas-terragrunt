@@ -1,0 +1,25 @@
+type Transaction @model @auth(rules: [{allow: public, provider: apiKey}])
+{
+  user_id: String!
+  transaction_id: String!
+  chat_id: Int
+  username: String
+  message_id: Int
+  amount: Float!
+  type: TransactionType
+  description: String
+  category: String
+  is_leisure: Boolean
+  currency: String @default(value: "COP")
+  confidence: Float
+  processing_method: String
+  reasoning: String
+  original_text: String
+  date_only: String
+  month_year: String
+}
+
+enum TransactionType {
+  income
+  expense
+}

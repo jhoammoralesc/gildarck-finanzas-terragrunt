@@ -1,0 +1,1015 @@
+{
+ "Description": "{\"createdOn\":\"Mac\",\"createdBy\":\"AmplifySandbox\",\"createdWith\":\"1.17.0\",\"stackType\":\"custom\",\"metadata\":{}}",
+ "Resources": {
+  "RestApi0C43BF4B": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Name": "FinanzasRestApi",
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Resource"
+   }
+  },
+  "RestApiCloudWatchRoleE3ED6605": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "apigateway.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+       ]
+      ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/CloudWatchRole/Resource"
+   }
+  },
+  "RestApiAccount7C83CF5A": {
+   "Type": "AWS::ApiGateway::Account",
+   "Properties": {
+    "CloudWatchRoleArn": {
+     "Fn::GetAtt": [
+      "RestApiCloudWatchRoleE3ED6605",
+      "Arn"
+     ]
+    }
+   },
+   "DependsOn": [
+    "RestApi0C43BF4B"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Account"
+   }
+  },
+  "RestApiDeployment180EC503f69cf17bdc8014dd1da422ef4c25cf22": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "Automatically created by the RestApi construct",
+    "RestApiId": {
+     "Ref": "RestApi0C43BF4B"
+    }
+   },
+   "DependsOn": [
+    "RestApiOPTIONS6AA64D2D",
+    "RestApiprocessimageOPTIONSDC2EC942",
+    "RestApiprocessimagePOST2D55227B",
+    "RestApiprocessimageDA04B9E2",
+    "RestApitransactionsGET3D5266EF",
+    "RestApitransactionsOPTIONS608C98D2",
+    "RestApitransactionsPOST29448C3D",
+    "RestApitransactionsB582C2F6"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Deployment/Resource",
+    "aws:cdk:do-not-refactor": true
+   }
+  },
+  "RestApiDeploymentStageprod3855DE66": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "RestApiDeployment180EC503f69cf17bdc8014dd1da422ef4c25cf22"
+    },
+    "RestApiId": {
+     "Ref": "RestApi0C43BF4B"
+    },
+    "StageName": "prod",
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ]
+   },
+   "DependsOn": [
+    "RestApiAccount7C83CF5A"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/DeploymentStage.prod/Resource"
+   }
+  },
+  "RestApiOPTIONS6AA64D2D": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Fn::GetAtt": [
+      "RestApi0C43BF4B",
+      "RootResourceId"
+     ]
+    },
+    "RestApiId": {
+     "Ref": "RestApi0C43BF4B"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/OPTIONS/Resource"
+   }
+  },
+  "RestApiprocessimageDA04B9E2": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "RestApi0C43BF4B",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "process-image",
+    "RestApiId": {
+     "Ref": "RestApi0C43BF4B"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/process-image/Resource"
+   }
+  },
+  "RestApiprocessimageOPTIONSDC2EC942": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "RestApiprocessimageDA04B9E2"
+    },
+    "RestApiId": {
+     "Ref": "RestApi0C43BF4B"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/process-image/OPTIONS/Resource"
+   }
+  },
+  "RestApiprocessimagePOSTApiPermissionamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377EPOSTprocessimage9C961601": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionNestedStackfunctionNestedStackResourceAD5A2358Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn"
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "RestApi0C43BF4B"
+       },
+       "/",
+       {
+        "Ref": "RestApiDeploymentStageprod3855DE66"
+       },
+       "/POST/process-image"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/process-image/POST/ApiPermission.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377E.POST..process-image"
+   }
+  },
+  "RestApiprocessimagePOSTApiPermissionTestamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377EPOSTprocessimage314395FB": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionNestedStackfunctionNestedStackResourceAD5A2358Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn"
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "RestApi0C43BF4B"
+       },
+       "/test-invoke-stage/POST/process-image"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/process-image/POST/ApiPermission.Test.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377E.POST..process-image"
+   }
+  },
+  "RestApiprocessimagePOST2D55227B": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:",
+        {
+         "Ref": "AWS::Region"
+        },
+        ":lambda:path/2015-03-31/functions/",
+        {
+         "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionNestedStackfunctionNestedStackResourceAD5A2358Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn"
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "RestApiprocessimageDA04B9E2"
+    },
+    "RestApiId": {
+     "Ref": "RestApi0C43BF4B"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/process-image/POST/Resource"
+   }
+  },
+  "RestApitransactionsB582C2F6": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "RestApi0C43BF4B",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "transactions",
+    "RestApiId": {
+     "Ref": "RestApi0C43BF4B"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/transactions/Resource"
+   }
+  },
+  "RestApitransactionsOPTIONS608C98D2": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "RestApitransactionsB582C2F6"
+    },
+    "RestApiId": {
+     "Ref": "RestApi0C43BF4B"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/transactions/OPTIONS/Resource"
+   }
+  },
+  "RestApitransactionsGETApiPermissionamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377EGETtransactions5165CE70": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionNestedStackfunctionNestedStackResourceAD5A2358Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn"
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "RestApi0C43BF4B"
+       },
+       "/",
+       {
+        "Ref": "RestApiDeploymentStageprod3855DE66"
+       },
+       "/GET/transactions"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/transactions/GET/ApiPermission.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377E.GET..transactions"
+   }
+  },
+  "RestApitransactionsGETApiPermissionTestamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377EGETtransactions012FD0F7": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionNestedStackfunctionNestedStackResourceAD5A2358Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn"
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "RestApi0C43BF4B"
+       },
+       "/test-invoke-stage/GET/transactions"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/transactions/GET/ApiPermission.Test.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377E.GET..transactions"
+   }
+  },
+  "RestApitransactionsGET3D5266EF": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:",
+        {
+         "Ref": "AWS::Region"
+        },
+        ":lambda:path/2015-03-31/functions/",
+        {
+         "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionNestedStackfunctionNestedStackResourceAD5A2358Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn"
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "RestApitransactionsB582C2F6"
+    },
+    "RestApiId": {
+     "Ref": "RestApi0C43BF4B"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/transactions/GET/Resource"
+   }
+  },
+  "RestApitransactionsPOSTApiPermissionamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377EPOSTtransactionsE149539F": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionNestedStackfunctionNestedStackResourceAD5A2358Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn"
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "RestApi0C43BF4B"
+       },
+       "/",
+       {
+        "Ref": "RestApiDeploymentStageprod3855DE66"
+       },
+       "/POST/transactions"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/transactions/POST/ApiPermission.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377E.POST..transactions"
+   }
+  },
+  "RestApitransactionsPOSTApiPermissionTestamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377EPOSTtransactions88535B25": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionNestedStackfunctionNestedStackResourceAD5A2358Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn"
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "RestApi0C43BF4B"
+       },
+       "/test-invoke-stage/POST/transactions"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/transactions/POST/ApiPermission.Test.amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi5AAD377E.POST..transactions"
+   }
+  },
+  "RestApitransactionsPOST29448C3D": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:",
+        {
+         "Ref": "AWS::Region"
+        },
+        ":lambda:path/2015-03-31/functions/",
+        {
+         "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionNestedStackfunctionNestedStackResourceAD5A2358Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn"
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "RestApitransactionsB582C2F6"
+    },
+    "RestApiId": {
+     "Ref": "RestApi0C43BF4B"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/RestApi/Default/transactions/POST/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WNy27CQAxFv4X9xIXZdE1hW0DJByAzY6hhHlHsaYSi/DtKQyVY+dxzdWUL1lpYLrCXyvlbFfgEw45EyTeK7mawl+OALV9Qqcc7DDWJrls2m3N6wbVzuSQ1W2pDvkdKOtmX1CheaHIz1CS5dI6+UMh8k/5kP5VP+m+fT/54NIwRhjqHWedAowkYTx5hc04H6iKLcE7j23xftC06mpQ9wVU+fq2F1ScsF1dhrrqSlCNBPd8HIBvTrQ4BAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/api-stack/CDKMetadata/Default"
+   },
+   "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Outputs": {
+  "RestApiEndpoint0551178A": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "RestApi0C43BF4B"
+      },
+      ".execute-api.",
+      {
+       "Ref": "AWS::Region"
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "RestApiDeploymentStageprod3855DE66"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
+  "amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApi055A3A5CRef": {
+   "Value": {
+    "Ref": "RestApi0C43BF4B"
+   }
+  },
+  "amplifygildarckfinanzasappjhoammoralessandbox2f44b5768dapistackRestApiDeploymentStageprod18824536Ref": {
+   "Value": {
+    "Ref": "RestApiDeploymentStageprod3855DE66"
+   }
+  }
+ },
+ "Conditions": {
+  "CDKMetadataAvailable": {
+   "Fn::Or": [
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "af-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-3"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-4"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-northwest-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-2"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "il-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "sa-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-1"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Equals": [
+      {
+       "Ref": "AWS::Region"
+      },
+      "us-west-2"
+     ]
+    }
+   ]
+  }
+ },
+ "Parameters": {
+  "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionNestedStackfunctionNestedStackResourceAD5A2358Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dfunctionimageprocessorfunctionlambdaEC50305BArn": {
+   "Type": "String"
+  }
+ }
+}

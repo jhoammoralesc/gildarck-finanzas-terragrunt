@@ -12,9 +12,4 @@ export const storage = defineStorage({
       allow.guest.to(["read", "write"]),
     ],
   }),
-  triggers: {
-    onUpload: defineFunction({
-      entry: "./functions/image-processor-function/handler.ts",
-    }),
-  },
 });

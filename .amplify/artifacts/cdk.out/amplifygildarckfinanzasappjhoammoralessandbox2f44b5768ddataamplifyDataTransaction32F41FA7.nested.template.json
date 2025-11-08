@@ -1,0 +1,2108 @@
+{
+ "Parameters": {
+  "DynamoDBModelTableReadIOPS": {
+   "Type": "Number",
+   "Default": 5,
+   "Description": "The number of read IOPS the table should support."
+  },
+  "DynamoDBModelTableWriteIOPS": {
+   "Type": "Number",
+   "Default": 5,
+   "Description": "The number of write IOPS the table should support."
+  },
+  "DynamoDBBillingMode": {
+   "Type": "String",
+   "Default": "PAY_PER_REQUEST",
+   "AllowedValues": [
+    "PAY_PER_REQUEST",
+    "PROVISIONED"
+   ],
+   "Description": "Configure @model types to create DynamoDB tables with PAY_PER_REQUEST or PROVISIONED billing modes."
+  },
+  "DynamoDBEnablePointInTimeRecovery": {
+   "Type": "String",
+   "Default": "false",
+   "AllowedValues": [
+    "true",
+    "false"
+   ],
+   "Description": "Whether to enable Point in Time Recovery on the table."
+  },
+  "DynamoDBEnableServerSideEncryption": {
+   "Type": "String",
+   "Default": "true",
+   "AllowedValues": [
+    "true",
+    "false"
+   ],
+   "Description": "Enable server side encryption powered by KMS."
+  },
+  "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataAmplifyTableManagerNestedStackAmplifyTableManagerNestedStackResource1EC8004BOutputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataAmplif3EA8DE32": {
+   "Type": "String"
+  },
+  "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId": {
+   "Type": "String"
+  },
+  "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName": {
+   "Type": "String"
+  },
+  "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref": {
+   "Type": "String"
+  },
+  "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref": {
+   "Type": "String"
+  },
+  "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref": {
+   "Type": "String"
+  }
+ },
+ "Conditions": {
+  "HasEnvironmentParameter": {
+   "Fn::Not": [
+    {
+     "Fn::Equals": [
+      "NONE",
+      "NONE"
+     ]
+    }
+   ]
+  },
+  "ShouldUsePayPerRequestBilling": {
+   "Fn::Equals": [
+    {
+     "Ref": "DynamoDBBillingMode"
+    },
+    "PAY_PER_REQUEST"
+   ]
+  },
+  "ShouldUsePointInTimeRecovery": {
+   "Fn::Equals": [
+    {
+     "Ref": "DynamoDBEnablePointInTimeRecovery"
+    },
+    "true"
+   ]
+  },
+  "CDKMetadataAvailable": {
+   "Fn::Or": [
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "af-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-3"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-4"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-northwest-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-2"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "il-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "sa-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-1"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Equals": [
+      {
+       "Ref": "AWS::Region"
+      },
+      "us-west-2"
+     ]
+    }
+   ]
+  }
+ },
+ "Resources": {
+  "TransactionTable": {
+   "Type": "Custom::AmplifyDynamoDBTable",
+   "Properties": {
+    "ServiceToken": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataAmplifyTableManagerNestedStackAmplifyTableManagerNestedStackResource1EC8004BOutputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataAmplif3EA8DE32"
+    },
+    "tableName": {
+     "Fn::Join": [
+      "",
+      [
+       "Transaction-",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "-NONE"
+      ]
+     ]
+    },
+    "attributeDefinitions": [
+     {
+      "attributeName": "id",
+      "attributeType": "S"
+     }
+    ],
+    "keySchema": [
+     {
+      "attributeName": "id",
+      "keyType": "HASH"
+     }
+    ],
+    "provisionedThroughput": {
+     "Fn::If": [
+      "ShouldUsePayPerRequestBilling",
+      {
+       "Ref": "AWS::NoValue"
+      },
+      {
+       "ReadCapacityUnits": {
+        "Ref": "DynamoDBModelTableReadIOPS"
+       },
+       "WriteCapacityUnits": {
+        "Ref": "DynamoDBModelTableWriteIOPS"
+       }
+      }
+     ]
+    },
+    "sseSpecification": {
+     "sseEnabled": false
+    },
+    "streamSpecification": {
+     "streamViewType": "NEW_AND_OLD_IMAGES"
+    },
+    "deletionProtectionEnabled": false,
+    "allowDestructiveGraphqlSchemaUpdates": true,
+    "replaceTableUponGsiUpdate": true,
+    "pointInTimeRecoverySpecification": {
+     "Fn::If": [
+      "ShouldUsePointInTimeRecovery",
+      {
+       "PointInTimeRecoveryEnabled": true
+      },
+      {
+       "Ref": "AWS::NoValue"
+      }
+     ]
+    },
+    "billingMode": {
+     "Fn::If": [
+      "ShouldUsePayPerRequestBilling",
+      "PAY_PER_REQUEST",
+      {
+       "Ref": "AWS::NoValue"
+      }
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/TransactionTable/Default/Default"
+   }
+  },
+  "TransactionIAMRole04BA2E25": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "appsync.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Policies": [
+     {
+      "PolicyDocument": {
+       "Statement": [
+        {
+         "Action": [
+          "dynamodb:BatchGetItem",
+          "dynamodb:BatchWriteItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:GetItem",
+          "dynamodb:Scan",
+          "dynamodb:Query",
+          "dynamodb:UpdateItem",
+          "dynamodb:ConditionCheckItem",
+          "dynamodb:DescribeTable",
+          "dynamodb:GetRecords",
+          "dynamodb:GetShardIterator"
+         ],
+         "Effect": "Allow",
+         "Resource": [
+          {
+           "Fn::Sub": [
+            "arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}",
+            {
+             "tablename": {
+              "Fn::Join": [
+               "",
+               [
+                "Transaction-",
+                {
+                 "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+                },
+                "-NONE"
+               ]
+              ]
+             }
+            }
+           ]
+          },
+          {
+           "Fn::Sub": [
+            "arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}/*",
+            {
+             "tablename": {
+              "Fn::Join": [
+               "",
+               [
+                "Transaction-",
+                {
+                 "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+                },
+                "-NONE"
+               ]
+              ]
+             }
+            }
+           ]
+          }
+         ]
+        }
+       ],
+       "Version": "2012-10-17"
+      },
+      "PolicyName": "DynamoDBAccess"
+     }
+    ],
+    "RoleName": {
+     "Fn::Join": [
+      "",
+      [
+       "TransactionIAMRole373077-",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "-NONE"
+      ]
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "amplify:friendly-name",
+      "Value": "amplifyData"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/TransactionIAMRole/Resource"
+   }
+  },
+  "TransactionDataSource": {
+   "Type": "AWS::AppSync::DataSource",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DynamoDBConfig": {
+     "AwsRegion": {
+      "Ref": "AWS::Region"
+     },
+     "TableName": {
+      "Fn::Select": [
+       1,
+       {
+        "Fn::Split": [
+         "/",
+         {
+          "Fn::Select": [
+           5,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "TransactionTable",
+               "TableArn"
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    },
+    "Name": "TransactionTable",
+    "ServiceRoleArn": {
+     "Fn::GetAtt": [
+      "TransactionIAMRole04BA2E25",
+      "Arn"
+     ]
+    },
+    "Type": "AMAZON_DYNAMODB"
+   },
+   "DependsOn": [
+    "TransactionIAMRole04BA2E25"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/TransactionDataSource/Resource"
+   }
+  },
+  "QuerygetTransactionauth0FunctionQuerygetTransactionauth0FunctionAppSyncFunction66A815B4": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "QuerygetTransactionauth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/0224a3e5097427da3f4460b5d6d2b86ad4195c9cb8da7bc13e7187eead1c3ae3.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/QuerygetTransactionauth0Function/QuerygetTransactionauth0Function.AppSyncFunction"
+   }
+  },
+  "QuerygetTransactionpostAuth0FunctionQuerygetTransactionpostAuth0FunctionAppSyncFunction650F819E": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "QuerygetTransactionpostAuth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/c1721bcd774e27c514d3454b5be4f9bdd094c0161b57ddf053d618e3b0086a77.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/QuerygetTransactionpostAuth0Function/QuerygetTransactionpostAuth0Function.AppSyncFunction"
+   }
+  },
+  "QueryGetTransactionDataResolverFnQueryGetTransactionDataResolverFnAppSyncFunction3FC5A37D": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Fn::GetAtt": [
+      "TransactionDataSource",
+      "Name"
+     ]
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "QueryGetTransactionDataResolverFn",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/08f4d557693d96c1a4efba0f9dc91330e4b19772fd5477c156468843e3d9cb5e.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/4c6a2d29f01c6091bd1d9afe16e5849d456c96f17c3b215938c8067399532719.vtl"
+    }
+   },
+   "DependsOn": [
+    "TransactionDataSource"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/QueryGetTransactionDataResolverFn/QueryGetTransactionDataResolverFn.AppSyncFunction"
+   }
+  },
+  "GetTransactionResolver": {
+   "Type": "AWS::AppSync::Resolver",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "FieldName": "getTransaction",
+    "Kind": "PIPELINE",
+    "PipelineConfig": {
+     "Functions": [
+      {
+       "Fn::GetAtt": [
+        "QuerygetTransactionauth0FunctionQuerygetTransactionauth0FunctionAppSyncFunction66A815B4",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "QuerygetTransactionpostAuth0FunctionQuerygetTransactionpostAuth0FunctionAppSyncFunction650F819E",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "QueryGetTransactionDataResolverFnQueryGetTransactionDataResolverFnAppSyncFunction3FC5A37D",
+        "FunctionId"
+       ]
+      }
+     ]
+    },
+    "RequestMappingTemplate": {
+     "Fn::Join": [
+      "",
+      [
+       "$util.qr($ctx.stash.put(\"typeName\", \"Query\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"getTransaction\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+       {
+        "Fn::Select": [
+         1,
+         {
+          "Fn::Split": [
+           "/",
+           {
+            "Fn::Select": [
+             5,
+             {
+              "Fn::Split": [
+               ":",
+               {
+                "Fn::GetAtt": [
+                 "TransactionTable",
+                 "TableArn"
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+      ]
+     ]
+    },
+    "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)",
+    "TypeName": "Query"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/queryGetTransactionResolver"
+   }
+  },
+  "QuerylistTransactionsauth0FunctionQuerylistTransactionsauth0FunctionAppSyncFunction47116B1D": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "QuerylistTransactionsauth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/0224a3e5097427da3f4460b5d6d2b86ad4195c9cb8da7bc13e7187eead1c3ae3.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/QuerylistTransactionsauth0Function/QuerylistTransactionsauth0Function.AppSyncFunction"
+   }
+  },
+  "QuerylistTransactionspostAuth0FunctionQuerylistTransactionspostAuth0FunctionAppSyncFunction1802D229": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "QuerylistTransactionspostAuth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/c1721bcd774e27c514d3454b5be4f9bdd094c0161b57ddf053d618e3b0086a77.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/QuerylistTransactionspostAuth0Function/QuerylistTransactionspostAuth0Function.AppSyncFunction"
+   }
+  },
+  "QueryListTransactionsDataResolverFnQueryListTransactionsDataResolverFnAppSyncFunctionAC8D8069": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Fn::GetAtt": [
+      "TransactionDataSource",
+      "Name"
+     ]
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "QueryListTransactionsDataResolverFn",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/9fcbe070ecd3023c5bf5b966fa9584757db9762eef123bad0820bd87591b2174.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cc01911d0269d4080ea57505dc445dfc315ef7ad85d3d9d4ea1357858bff451d.vtl"
+    }
+   },
+   "DependsOn": [
+    "TransactionDataSource"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/QueryListTransactionsDataResolverFn/QueryListTransactionsDataResolverFn.AppSyncFunction"
+   }
+  },
+  "ListTransactionResolver": {
+   "Type": "AWS::AppSync::Resolver",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "FieldName": "listTransactions",
+    "Kind": "PIPELINE",
+    "PipelineConfig": {
+     "Functions": [
+      {
+       "Fn::GetAtt": [
+        "QuerylistTransactionsauth0FunctionQuerylistTransactionsauth0FunctionAppSyncFunction47116B1D",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "QuerylistTransactionspostAuth0FunctionQuerylistTransactionspostAuth0FunctionAppSyncFunction1802D229",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "QueryListTransactionsDataResolverFnQueryListTransactionsDataResolverFnAppSyncFunctionAC8D8069",
+        "FunctionId"
+       ]
+      }
+     ]
+    },
+    "RequestMappingTemplate": {
+     "Fn::Join": [
+      "",
+      [
+       "$util.qr($ctx.stash.put(\"typeName\", \"Query\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"listTransactions\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+       {
+        "Fn::Select": [
+         1,
+         {
+          "Fn::Split": [
+           "/",
+           {
+            "Fn::Select": [
+             5,
+             {
+              "Fn::Split": [
+               ":",
+               {
+                "Fn::GetAtt": [
+                 "TransactionTable",
+                 "TableArn"
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+      ]
+     ]
+    },
+    "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)",
+    "TypeName": "Query"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/queryListTransactionsResolver"
+   }
+  },
+  "MutationcreateTransactioninit0FunctionMutationcreateTransactioninit0FunctionAppSyncFunction6CF6434F": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationcreateTransactioninit0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a183ddccbd956316c38ef97177b8f088ef0826f62023323f5ae6053d348ccffc.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationcreateTransactioninit0Function/MutationcreateTransactioninit0Function.AppSyncFunction"
+   }
+  },
+  "MutationcreateTransactioninit1FunctionMutationcreateTransactioninit1FunctionAppSyncFunctionE2E2F4DF": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationcreateTransactioninit1Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/59a14ef3c0d176c7d9446d99a5737aecf8996215bb78872c01dd58b0885f7966.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationcreateTransactioninit1Function/MutationcreateTransactioninit1Function.AppSyncFunction"
+   }
+  },
+  "MutationcreateTransactionauth0FunctionMutationcreateTransactionauth0FunctionAppSyncFunction871A107B": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationcreateTransactionauth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/d637c1fb7301003b8a5ada269338cf2e8df6cc0dc412ef13acc6158d680b6d3e.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationcreateTransactionauth0Function/MutationcreateTransactionauth0Function.AppSyncFunction"
+   }
+  },
+  "MutationcreateTransactionpostAuth0FunctionMutationcreateTransactionpostAuth0FunctionAppSyncFunction349B0158": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationcreateTransactionpostAuth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/c1721bcd774e27c514d3454b5be4f9bdd094c0161b57ddf053d618e3b0086a77.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationcreateTransactionpostAuth0Function/MutationcreateTransactionpostAuth0Function.AppSyncFunction"
+   }
+  },
+  "MutationCreateTransactionDataResolverFnMutationCreateTransactionDataResolverFnAppSyncFunction280BF4F6": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Fn::GetAtt": [
+      "TransactionDataSource",
+      "Name"
+     ]
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationCreateTransactionDataResolverFn",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/697acddcee54a52da9d0cb82fe8d9c114fe42f570e2194491b3ede80808a138f.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/f4a52b72209a9dfa197b5e7367a5c378c5bb86de6e29ddd9e48b49a3fe54b249.vtl"
+    }
+   },
+   "DependsOn": [
+    "TransactionDataSource"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationCreateTransactionDataResolverFn/MutationCreateTransactionDataResolverFn.AppSyncFunction"
+   }
+  },
+  "CreateTransactionResolver": {
+   "Type": "AWS::AppSync::Resolver",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "FieldName": "createTransaction",
+    "Kind": "PIPELINE",
+    "PipelineConfig": {
+     "Functions": [
+      {
+       "Fn::GetAtt": [
+        "MutationcreateTransactioninit0FunctionMutationcreateTransactioninit0FunctionAppSyncFunction6CF6434F",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "MutationcreateTransactioninit1FunctionMutationcreateTransactioninit1FunctionAppSyncFunctionE2E2F4DF",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "MutationcreateTransactionauth0FunctionMutationcreateTransactionauth0FunctionAppSyncFunction871A107B",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "MutationcreateTransactionpostAuth0FunctionMutationcreateTransactionpostAuth0FunctionAppSyncFunction349B0158",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "MutationCreateTransactionDataResolverFnMutationCreateTransactionDataResolverFnAppSyncFunction280BF4F6",
+        "FunctionId"
+       ]
+      }
+     ]
+    },
+    "RequestMappingTemplate": {
+     "Fn::Join": [
+      "",
+      [
+       "$util.qr($ctx.stash.put(\"typeName\", \"Mutation\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"createTransaction\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+       {
+        "Fn::Select": [
+         1,
+         {
+          "Fn::Split": [
+           "/",
+           {
+            "Fn::Select": [
+             5,
+             {
+              "Fn::Split": [
+               ":",
+               {
+                "Fn::GetAtt": [
+                 "TransactionTable",
+                 "TableArn"
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+      ]
+     ]
+    },
+    "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)",
+    "TypeName": "Mutation"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/mutationCreateTransactionResolver"
+   }
+  },
+  "MutationupdateTransactioninit0FunctionMutationupdateTransactioninit0FunctionAppSyncFunctionF610D403": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationupdateTransactioninit0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/06db846fd14e6fc371f22b12b5545ba8e2dbfeda85d8c8d586c71c282166657b.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationupdateTransactioninit0Function/MutationupdateTransactioninit0Function.AppSyncFunction"
+   }
+  },
+  "MutationupdateTransactionauth0FunctionMutationupdateTransactionauth0FunctionAppSyncFunctionA3132436": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Fn::GetAtt": [
+      "TransactionDataSource",
+      "Name"
+     ]
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationupdateTransactionauth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/1f5fed297da9c32ae3af922bf3a38ccf23b956078887d16891ec06c20c64722c.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/89f92efd98b1034df0e2497fe31a97de6975de554b8a22e0677d05d6efcafa59.vtl"
+    }
+   },
+   "DependsOn": [
+    "TransactionDataSource"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationupdateTransactionauth0Function/MutationupdateTransactionauth0Function.AppSyncFunction"
+   }
+  },
+  "MutationupdateTransactionpostAuth0FunctionMutationupdateTransactionpostAuth0FunctionAppSyncFunction91FA2EF1": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationupdateTransactionpostAuth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/c1721bcd774e27c514d3454b5be4f9bdd094c0161b57ddf053d618e3b0086a77.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationupdateTransactionpostAuth0Function/MutationupdateTransactionpostAuth0Function.AppSyncFunction"
+   }
+  },
+  "MutationUpdateTransactionDataResolverFnMutationUpdateTransactionDataResolverFnAppSyncFunction46B5091F": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Fn::GetAtt": [
+      "TransactionDataSource",
+      "Name"
+     ]
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationUpdateTransactionDataResolverFn",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/474bf0776ec2164a13191d1a0a9e057154931e4918fea5086f49850d02a5371b.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/f4a52b72209a9dfa197b5e7367a5c378c5bb86de6e29ddd9e48b49a3fe54b249.vtl"
+    }
+   },
+   "DependsOn": [
+    "TransactionDataSource"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationUpdateTransactionDataResolverFn/MutationUpdateTransactionDataResolverFn.AppSyncFunction"
+   }
+  },
+  "UpdateTransactionResolver": {
+   "Type": "AWS::AppSync::Resolver",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "FieldName": "updateTransaction",
+    "Kind": "PIPELINE",
+    "PipelineConfig": {
+     "Functions": [
+      {
+       "Fn::GetAtt": [
+        "MutationupdateTransactioninit0FunctionMutationupdateTransactioninit0FunctionAppSyncFunctionF610D403",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "MutationupdateTransactionauth0FunctionMutationupdateTransactionauth0FunctionAppSyncFunctionA3132436",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "MutationupdateTransactionpostAuth0FunctionMutationupdateTransactionpostAuth0FunctionAppSyncFunction91FA2EF1",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "MutationUpdateTransactionDataResolverFnMutationUpdateTransactionDataResolverFnAppSyncFunction46B5091F",
+        "FunctionId"
+       ]
+      }
+     ]
+    },
+    "RequestMappingTemplate": {
+     "Fn::Join": [
+      "",
+      [
+       "$util.qr($ctx.stash.put(\"typeName\", \"Mutation\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"updateTransaction\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+       {
+        "Fn::Select": [
+         1,
+         {
+          "Fn::Split": [
+           "/",
+           {
+            "Fn::Select": [
+             5,
+             {
+              "Fn::Split": [
+               ":",
+               {
+                "Fn::GetAtt": [
+                 "TransactionTable",
+                 "TableArn"
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+      ]
+     ]
+    },
+    "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)",
+    "TypeName": "Mutation"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/mutationUpdateTransactionResolver"
+   }
+  },
+  "MutationdeleteTransactionauth0FunctionMutationdeleteTransactionauth0FunctionAppSyncFunctionB2177ED3": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Fn::GetAtt": [
+      "TransactionDataSource",
+      "Name"
+     ]
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationdeleteTransactionauth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/1f5fed297da9c32ae3af922bf3a38ccf23b956078887d16891ec06c20c64722c.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e3416b4d47414f29c21e59a70e83bddb959ef0625854ed7fb0ca376573e99069.vtl"
+    }
+   },
+   "DependsOn": [
+    "TransactionDataSource"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationdeleteTransactionauth0Function/MutationdeleteTransactionauth0Function.AppSyncFunction"
+   }
+  },
+  "MutationdeleteTransactionpostAuth0FunctionMutationdeleteTransactionpostAuth0FunctionAppSyncFunction74658514": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationdeleteTransactionpostAuth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/c1721bcd774e27c514d3454b5be4f9bdd094c0161b57ddf053d618e3b0086a77.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationdeleteTransactionpostAuth0Function/MutationdeleteTransactionpostAuth0Function.AppSyncFunction"
+   }
+  },
+  "MutationDeleteTransactionDataResolverFnMutationDeleteTransactionDataResolverFnAppSyncFunction5CA52E8F": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Fn::GetAtt": [
+      "TransactionDataSource",
+      "Name"
+     ]
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "MutationDeleteTransactionDataResolverFn",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/4f7907d1209a2c9953a0c053df402c634e359546d70c7cc5c2e8e21ea734880f.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/f4a52b72209a9dfa197b5e7367a5c378c5bb86de6e29ddd9e48b49a3fe54b249.vtl"
+    }
+   },
+   "DependsOn": [
+    "TransactionDataSource"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/MutationDeleteTransactionDataResolverFn/MutationDeleteTransactionDataResolverFn.AppSyncFunction"
+   }
+  },
+  "DeleteTransactionResolver": {
+   "Type": "AWS::AppSync::Resolver",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "FieldName": "deleteTransaction",
+    "Kind": "PIPELINE",
+    "PipelineConfig": {
+     "Functions": [
+      {
+       "Fn::GetAtt": [
+        "MutationdeleteTransactionauth0FunctionMutationdeleteTransactionauth0FunctionAppSyncFunctionB2177ED3",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "MutationdeleteTransactionpostAuth0FunctionMutationdeleteTransactionpostAuth0FunctionAppSyncFunction74658514",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "MutationDeleteTransactionDataResolverFnMutationDeleteTransactionDataResolverFnAppSyncFunction5CA52E8F",
+        "FunctionId"
+       ]
+      }
+     ]
+    },
+    "RequestMappingTemplate": {
+     "Fn::Join": [
+      "",
+      [
+       "$util.qr($ctx.stash.put(\"typeName\", \"Mutation\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"deleteTransaction\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+       {
+        "Fn::Select": [
+         1,
+         {
+          "Fn::Split": [
+           "/",
+           {
+            "Fn::Select": [
+             5,
+             {
+              "Fn::Split": [
+               ":",
+               {
+                "Fn::GetAtt": [
+                 "TransactionTable",
+                 "TableArn"
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+      ]
+     ]
+    },
+    "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)",
+    "TypeName": "Mutation"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/mutationDeleteTransactionResolver"
+   }
+  },
+  "SubscriptiononCreateTransactionauth0FunctionSubscriptiononCreateTransactionauth0FunctionAppSyncFunctionB9D0F9B2": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "SubscriptiononCreateTransactionauth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e6da5a6e993df8b5fdc91086b71eb53e72a3a97c98836ef9c9257776f36c452b.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/SubscriptiononCreateTransactionauth0Function/SubscriptiononCreateTransactionauth0Function.AppSyncFunction"
+   }
+  },
+  "SubscriptiononCreateTransactionpostAuth0FunctionSubscriptiononCreateTransactionpostAuth0FunctionAppSyncFunctionAF5AB619": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "SubscriptiononCreateTransactionpostAuth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/c1721bcd774e27c514d3454b5be4f9bdd094c0161b57ddf053d618e3b0086a77.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/SubscriptiononCreateTransactionpostAuth0Function/SubscriptiononCreateTransactionpostAuth0Function.AppSyncFunction"
+   }
+  },
+  "SubscriptionOnCreateTransactionDataResolverFnSubscriptionOnCreateTransactionDataResolverFnAppSyncFunction699FBF14": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "SubscriptionOnCreateTransactionDataResolverFn",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fe3c43ada4b9d681a5e2312663ef7a73386424d73b73e51f8e2e9d4b50f7c502.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e0cff47fb007f0bbf2a4e43ca256d6aa7ec109821769fd79fa7c5e83f0e7f9fc.vtl"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/SubscriptionOnCreateTransactionDataResolverFn/SubscriptionOnCreateTransactionDataResolverFn.AppSyncFunction"
+   }
+  },
+  "SubscriptiononCreateTransactionResolver": {
+   "Type": "AWS::AppSync::Resolver",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "FieldName": "onCreateTransaction",
+    "Kind": "PIPELINE",
+    "PipelineConfig": {
+     "Functions": [
+      {
+       "Fn::GetAtt": [
+        "SubscriptiononCreateTransactionauth0FunctionSubscriptiononCreateTransactionauth0FunctionAppSyncFunctionB9D0F9B2",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "SubscriptiononCreateTransactionpostAuth0FunctionSubscriptiononCreateTransactionpostAuth0FunctionAppSyncFunctionAF5AB619",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "SubscriptionOnCreateTransactionDataResolverFnSubscriptionOnCreateTransactionDataResolverFnAppSyncFunction699FBF14",
+        "FunctionId"
+       ]
+      }
+     ]
+    },
+    "RequestMappingTemplate": {
+     "Fn::Join": [
+      "",
+      [
+       "$util.qr($ctx.stash.put(\"typeName\", \"Subscription\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"onCreateTransaction\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"NONE\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n\n$util.qr($ctx.stash.put(\"authRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+      ]
+     ]
+    },
+    "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)",
+    "TypeName": "Subscription"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/subscriptionOnCreateTransactionResolver"
+   }
+  },
+  "SubscriptiononUpdateTransactionauth0FunctionSubscriptiononUpdateTransactionauth0FunctionAppSyncFunctionABE87EE8": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "SubscriptiononUpdateTransactionauth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e6da5a6e993df8b5fdc91086b71eb53e72a3a97c98836ef9c9257776f36c452b.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/SubscriptiononUpdateTransactionauth0Function/SubscriptiononUpdateTransactionauth0Function.AppSyncFunction"
+   }
+  },
+  "SubscriptiononUpdateTransactionpostAuth0FunctionSubscriptiononUpdateTransactionpostAuth0FunctionAppSyncFunction5527CFBC": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "SubscriptiononUpdateTransactionpostAuth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/c1721bcd774e27c514d3454b5be4f9bdd094c0161b57ddf053d618e3b0086a77.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/SubscriptiononUpdateTransactionpostAuth0Function/SubscriptiononUpdateTransactionpostAuth0Function.AppSyncFunction"
+   }
+  },
+  "SubscriptionOnUpdateTransactionDataResolverFnSubscriptionOnUpdateTransactionDataResolverFnAppSyncFunctionD7B2BA64": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "SubscriptionOnUpdateTransactionDataResolverFn",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fe3c43ada4b9d681a5e2312663ef7a73386424d73b73e51f8e2e9d4b50f7c502.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e0cff47fb007f0bbf2a4e43ca256d6aa7ec109821769fd79fa7c5e83f0e7f9fc.vtl"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/SubscriptionOnUpdateTransactionDataResolverFn/SubscriptionOnUpdateTransactionDataResolverFn.AppSyncFunction"
+   }
+  },
+  "SubscriptiononUpdateTransactionResolver": {
+   "Type": "AWS::AppSync::Resolver",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "FieldName": "onUpdateTransaction",
+    "Kind": "PIPELINE",
+    "PipelineConfig": {
+     "Functions": [
+      {
+       "Fn::GetAtt": [
+        "SubscriptiononUpdateTransactionauth0FunctionSubscriptiononUpdateTransactionauth0FunctionAppSyncFunctionABE87EE8",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "SubscriptiononUpdateTransactionpostAuth0FunctionSubscriptiononUpdateTransactionpostAuth0FunctionAppSyncFunction5527CFBC",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "SubscriptionOnUpdateTransactionDataResolverFnSubscriptionOnUpdateTransactionDataResolverFnAppSyncFunctionD7B2BA64",
+        "FunctionId"
+       ]
+      }
+     ]
+    },
+    "RequestMappingTemplate": {
+     "Fn::Join": [
+      "",
+      [
+       "$util.qr($ctx.stash.put(\"typeName\", \"Subscription\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"onUpdateTransaction\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"NONE\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n\n$util.qr($ctx.stash.put(\"authRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+      ]
+     ]
+    },
+    "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)",
+    "TypeName": "Subscription"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/subscriptionOnUpdateTransactionResolver"
+   }
+  },
+  "SubscriptiononDeleteTransactionauth0FunctionSubscriptiononDeleteTransactionauth0FunctionAppSyncFunction949F3088": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "SubscriptiononDeleteTransactionauth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e6da5a6e993df8b5fdc91086b71eb53e72a3a97c98836ef9c9257776f36c452b.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/SubscriptiononDeleteTransactionauth0Function/SubscriptiononDeleteTransactionauth0Function.AppSyncFunction"
+   }
+  },
+  "SubscriptiononDeleteTransactionpostAuth0FunctionSubscriptiononDeleteTransactionpostAuth0FunctionAppSyncFunction35445C2D": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "SubscriptiononDeleteTransactionpostAuth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/c1721bcd774e27c514d3454b5be4f9bdd094c0161b57ddf053d618e3b0086a77.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/SubscriptiononDeleteTransactionpostAuth0Function/SubscriptiononDeleteTransactionpostAuth0Function.AppSyncFunction"
+   }
+  },
+  "SubscriptionOnDeleteTransactionDataResolverFnSubscriptionOnDeleteTransactionDataResolverFnAppSyncFunctionC10266AE": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPINONEDSE963DCEFName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "SubscriptionOnDeleteTransactionDataResolverFn",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fe3c43ada4b9d681a5e2312663ef7a73386424d73b73e51f8e2e9d4b50f7c502.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e0cff47fb007f0bbf2a4e43ca256d6aa7ec109821769fd79fa7c5e83f0e7f9fc.vtl"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/SubscriptionOnDeleteTransactionDataResolverFn/SubscriptionOnDeleteTransactionDataResolverFn.AppSyncFunction"
+   }
+  },
+  "SubscriptiononDeleteTransactionResolver": {
+   "Type": "AWS::AppSync::Resolver",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+    },
+    "FieldName": "onDeleteTransaction",
+    "Kind": "PIPELINE",
+    "PipelineConfig": {
+     "Functions": [
+      {
+       "Fn::GetAtt": [
+        "SubscriptiononDeleteTransactionauth0FunctionSubscriptiononDeleteTransactionauth0FunctionAppSyncFunction949F3088",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "SubscriptiononDeleteTransactionpostAuth0FunctionSubscriptiononDeleteTransactionpostAuth0FunctionAppSyncFunction35445C2D",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "SubscriptionOnDeleteTransactionDataResolverFnSubscriptionOnDeleteTransactionDataResolverFnAppSyncFunctionC10266AE",
+        "FunctionId"
+       ]
+      }
+     ]
+    },
+    "RequestMappingTemplate": {
+     "Fn::Join": [
+      "",
+      [
+       "$util.qr($ctx.stash.put(\"typeName\", \"Subscription\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"onDeleteTransaction\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"NONE\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n\n$util.qr($ctx.stash.put(\"authRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthauthenticatedUserRoleA60D3253Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthunauthenticatedUserRoleC6733894Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"",
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthNestedStackauthNestedStackResourceD58A9A80Outputsamplifygildarckfinanzasappjhoammoralessandbox2f44b5768dauthamplifyAuthIdentityPool54852E04Ref"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+      ]
+     ]
+    },
+    "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)",
+    "TypeName": "Subscription"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/subscriptionOnDeleteTransactionResolver"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WOwW6DMAyGn6X34HXpYecVtGM3we6VSQxKCQmKnVYV4t0n6NRpp9+f/Mn+NWitYb/DGxfGDoV3LcwnYiHbCJpBlV34woQjCaUVyhisExeDqoljToZUmVni+IddeM544/Ns7wHHaFv4xtbTEZmUwxHmOvqHHT0tCqeJ78HAXG161VYo2DxP/qePHMxaooyhc31OuDX6/eyvlBbFhzMykzC8r6H4AMdsBpK1wLK6n1mmLGpbN4K9C/2iQrQEF365ag2vb7DfXdi5IuUgbiSoH/kDatglsTYBAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "amplify-gildarckfinanzasapp-jhoammorales-sandbox-2f44b5768d/data/amplifyData/Transaction/CDKMetadata/Default"
+   },
+   "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Outputs": {
+  "GetAttTransactionTableStreamArn": {
+   "Description": "Your DynamoDB table StreamArn.",
+   "Value": {
+    "Fn::GetAtt": [
+     "TransactionTable",
+     "TableStreamArn"
+    ]
+   },
+   "Export": {
+    "Name": {
+     "Fn::Join": [
+      ":",
+      [
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "GetAtt:TransactionTable:StreamArn"
+      ]
+     ]
+    }
+   }
+  },
+  "GetAttTransactionTableName": {
+   "Description": "Your DynamoDB table name.",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "Transaction-",
+      {
+       "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+      },
+      "-NONE"
+     ]
+    ]
+   },
+   "Export": {
+    "Name": {
+     "Fn::Join": [
+      ":",
+      [
+       {
+        "Ref": "referencetoamplifygildarckfinanzasappjhoammoralessandbox2f44b5768ddataamplifyDataGraphQLAPI3617799AApiId"
+       },
+       "GetAtt:TransactionTable:Name"
+      ]
+     ]
+    }
+   }
+  }
+ }
+}
