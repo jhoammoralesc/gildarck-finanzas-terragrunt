@@ -1,0 +1,24 @@
+{
+  "name": "gildarck-finanzas-app",
+  "version": "1.0.0",
+  "description": "Personal finance management app with Telegram bot integration",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "amplify:dev": "npx ampx sandbox",
+    "amplify:deploy": "npx ampx pipeline-deploy --branch main"
+  },
+  "dependencies": {
+    "@aws-amplify/backend": "^1.0.0",
+    "@aws-amplify/backend-cli": "^1.0.0",
+    "aws-cdk-lib": "^2.0.0",
+    "constructs": "^10.0.0",
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "vite": "^5.0.0"
+  }
+}
